@@ -235,25 +235,58 @@ export default function App() {
     if (currentParticipants.length === 0 || isSyncing) return;
     
     setIsSyncing(true);
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    
     try {
       const updatedParticipants = [...currentParticipants];
       
       for (let i = 0; i < updatedParticipants.length; i++) {
         const p = updatedParticipants[i];
-        try {
-          const response = await fetch('/api/lol/sync', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ participant: p, rules: currentRules })
-          });
-          
-          if (response.ok) {
-            const syncedData = await response.json();
-            // Calculate score based on new matches and tier info
-            updatedParticipants[i] = calculateParticipantScore(syncedData, currentRules);
+        let retryCount = 0;
+        const maxRetries = 2;
+        let success = false;
+
+        while (retryCount <= maxRetries && !success) {
+          try {
+            // Add a base delay between participants to respect rate limits (Dev keys are very strict)
+            if (i > 0 || retryCount > 0) await delay(800); 
+
+            const response = await fetch('/api/lol/sync', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ participant: p, rules: currentRules })
+            });
+            
+            if (response.ok) {
+              const syncedData = await response.json();
+              
+              // If the proxy returns a 429 warning inside the body (handled error)
+              if (syncedData.syncWarning?.includes('429')) {
+                throw new Error('429_TOO_MANY_REQUESTS');
+              }
+
+              // Calculate score based on new matches and tier info
+              updatedParticipants[i] = calculateParticipantScore(syncedData, currentRules);
+              success = true;
+            } else if (response.status === 429) {
+              throw new Error('429_TOO_MANY_REQUESTS');
+            } else {
+              // Other errors - don't retry, just log and move on
+              console.error(`Failed to sync ${p.name}: HTTP ${response.status}`);
+              success = true; // Break retry loop
+            }
+          } catch (err: any) {
+            if (err.message === '429_TOO_MANY_REQUESTS') {
+              retryCount++;
+              if (retryCount <= maxRetries) {
+                // Wait longer on 429 (exponential-ish backoff)
+                await delay(2000 * retryCount);
+                continue; 
+              }
+            }
+            console.error(`Failed to sync ${p.name}:`, err);
+            success = true; // Break retry loop
           }
-        } catch (err) {
-          console.error(`Failed to sync ${p.name}:`, err);
         }
       }
       
@@ -333,7 +366,7 @@ export default function App() {
       <div className="glow-mesh opacity-10" />
       <div className="glow-mesh-2 opacity-10" />
 
-      {/* 400px Broad Sidebar block, custom aligned */}
+      {/* 350px Broad Sidebar block, custom aligned */}
       <Sidebar
         rules={rules}
         participants={participants}

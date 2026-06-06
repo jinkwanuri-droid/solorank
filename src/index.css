@@ -119,6 +119,12 @@ body {
   animation: pulse-soft 3s ease-in-out infinite;
 }
 
+@keyframes shimmer-gold {
+  0% { transform: translateX(-100%); opacity: 0.2; }
+  50% { opacity: 0.8; }
+  100% { transform: translateX(100%); opacity: 0.2; }
+}
+
 /* Custom background mesh */
 .scrollbar-none {
   scrollbar-width: none; /* Firefox */

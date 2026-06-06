@@ -139,14 +139,31 @@ export const MainList: React.FC<MainListProps> = ({
                     ease: [0.16, 1, 0.3, 1] 
                   }}
                   onClick={() => onSelectParticipant(p)}
-                  className="bg-white/80 backdrop-blur-sm border border-slate-200/60 py-3.5 px-6 lg:px-8 rounded-[28px] flex flex-col lg:flex-row lg:items-center justify-between gap-6 cursor-pointer select-none relative group transition-all hover:bg-white hover:border-blue-300 hover:shadow-xl hover:shadow-blue-200/20 hover:-translate-y-0.5"
+                  className={`py-3.5 px-6 lg:px-8 rounded-[28px] flex flex-col lg:flex-row lg:items-center justify-between gap-6 cursor-pointer select-none relative group transition-all backdrop-blur-sm border
+                    ${idx === 0 
+                      ? 'bg-gradient-to-br from-amber-50/80 via-white to-amber-50/60 border-amber-200/60 shadow-lg shadow-amber-200/20' 
+                      : idx === 1
+                        ? 'bg-gradient-to-br from-slate-50/90 via-white to-slate-50/50 border-slate-200/60 shadow-sm'
+                        : idx === 2
+                          ? 'bg-gradient-to-br from-orange-50/60 via-white to-orange-50/40 border-orange-200/40 shadow-sm'
+                          : 'bg-white/80 border-slate-200/60 hover:bg-white hover:border-blue-300 hover:shadow-xl hover:shadow-blue-200/20 hover:-translate-y-0.5'
+                    }
+                    ${(idx === 1 || idx === 2) ? 'hover:bg-white hover:border-blue-300 hover:shadow-lg' : ''}
+                  `}
                 >
+                  {/* Subtle Shimmer for Top 3 */}
+                  {idx < 3 && (
+                    <div className="absolute inset-0 z-0 overflow-hidden rounded-[28px] pointer-events-none">
+                      <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-${idx === 0 ? 'amber' : idx === 1 ? 'slate' : 'orange'}-200/10 to-transparent -skew-x-12 animate-shimmer-gold`} />
+                    </div>
+                  )}
+
                   {/* Left Identity Section */}
-                  <div className="flex items-center gap-6 flex-1 min-w-0">
+                  <div className="relative z-10 flex items-center gap-6 flex-1 min-w-0">
                     <div className="w-12 h-12 shrink-0 flex items-center justify-center">
                       {idx === 0 ? (
-                        <div className="relative">
-                          <CrownRankingIcon className="w-10 h-10 relative text-amber-500 drop-shadow-sm" />
+                        <div className="flex items-center justify-center bg-amber-50 border border-amber-200/50 w-10 h-10 rounded-xl">
+                          <CrownRankingIcon className="w-5 h-5" />
                         </div>
                       ) : (
                         <span className={`text-2xl font-black font-mono tracking-tighter transition-colors ${
@@ -194,7 +211,7 @@ export const MainList: React.FC<MainListProps> = ({
                   </div>
 
                   {/* Right Content Grouped */}
-                  <div className="flex items-center gap-12 text-right">
+                  <div className="relative z-10 flex items-center gap-12 text-right">
                     {/* Compact Vertical Stats */}
                     <div className="flex items-center gap-6 border-r border-slate-100 pr-12 h-10">
                        <div className="flex flex-col items-center leading-none">
@@ -239,7 +256,7 @@ export const MainList: React.FC<MainListProps> = ({
           ) : (
             <div className="flex flex-col items-center justify-center py-24 bg-white/50 backdrop-blur-sm rounded-[48px] border-2 border-dashed border-slate-200 p-8 text-center space-y-6">
               <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-300">
-                <CrownRankingIcon className="w-12 h-12" />
+                <CrownRankingIcon className="w-10 h-10" />
               </div>
               <div>
                 <p className="text-xl font-bold text-slate-700">현재 등록된 소환사 참가자가 없습니다.</p>

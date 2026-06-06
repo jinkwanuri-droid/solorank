@@ -43,71 +43,49 @@ async function startServer() {
       );
       
       if (!accountRes.ok) {
-        if (accountRes.status === 404) {
-          console.warn(`Account not found for ${summonerName}#${tagLine} (404). Kept cached data.`);
-          return res.json({
-            ...participant,
-            syncStatus: 'not_found',
-            syncWarning: `존재하지 않는 소환사명 또는 태그라인입니다: ${summonerName}#${tagLine}`
-          });
-        }
-        if (accountRes.status === 401 || accountRes.status === 403) {
-          console.warn(`Riot API authentication failed (HTTP ${accountRes.status}) while syncing ${summonerName}#${tagLine}.`);
-          return res.json({
-            ...participant,
-            syncStatus: 'auth_failed',
-            syncWarning: 'Riot API 키 인증에 실패했습니다 (만료 혹은 권한 없음).'
-          });
-        }
-        throw new Error(`Failed to fetch account for ${summonerName}#${tagLine}: ${accountRes.status} ${accountRes.statusText}`);
+        return res.json({
+          ...participant,
+          syncStatus: 'failed',
+          syncWarning: `계정 정보를 불러올 수 없습니다: HTTP ${accountRes.status}`
+        });
       }
       
       const accountData = await accountRes.json();
       const puuid = accountData?.puuid;
       if (!puuid) {
-        throw new Error(`PUUID not found in account response for ${summonerName}#${tagLine}`);
+        throw new Error(`PUUID not found in account response`);
       }
 
-      // 2. Get Summoner ID from PUUID (Needed for League entries/Tiers)
+      // 2. Get Summoner ID from PUUID
       const summonerRes = await fetch(
         `https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${puuid}?api_key=${apiKey}`
       );
       if (!summonerRes.ok) {
-        if (summonerRes.status === 404) {
-          console.warn(`Summoner profile (League v4) not found for PUUID ${puuid} on KR server.`);
-          return res.json({
-            ...participant,
-            syncStatus: 'summoner_not_found',
-            syncWarning: `KR 서버에서 소환사 정보를 찾을 수 없습니다: ${summonerName}#${tagLine}`
-          });
-        }
-        throw new Error(`Failed to fetch summoner for PUUID ${puuid}: ${summonerRes.status} ${summonerRes.statusText}`);
+        return res.json({
+          ...participant,
+          syncStatus: 'failed',
+          syncWarning: `소환사 정보를 불러올 수 없습니다: HTTP ${summonerRes.status}`
+        });
       }
       const summonerData = await summonerRes.json();
       const id = summonerData?.id;
-      if (!id) {
-        console.warn(`Summoner ID field not found in response for PUUID ${puuid}. Response body:`, summonerData);
-        return res.json({
-          ...participant,
-          syncStatus: 'id_missing',
-          syncWarning: `소환사 ID를 불러오는 데 실패했습니다 (API 응답 형식 다름).`
-        });
-      }
 
       // 3. Get Current Tier/LP
       const leagueRes = await fetch(
         `https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/${id}?api_key=${apiKey}`
       );
       if (!leagueRes.ok) {
-        throw new Error(`Failed to fetch league entries for Summoner ID ${id}: ${leagueRes.status} ${leagueRes.statusText}`);
+        return res.json({
+          ...participant,
+          syncStatus: 'failed',
+          syncWarning: `리그 정보를 불러올 수 없습니다: HTTP ${leagueRes.status}`
+        });
       }
       const leagueData = await leagueRes.json();
       
       let soloRank = null;
       if (Array.isArray(leagueData)) {
         soloRank = leagueData.find((e: any) => e.queueType === 'RANKED_SOLO_5x5');
-      } else {
-        console.warn(`League entries response is not an array for ${summonerName}:`, leagueData);
       }
 
       // 4. Get Match IDs during period
@@ -118,7 +96,11 @@ async function startServer() {
         `https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?startTime=${startTime}&endTime=${endTime}&queue=420&type=ranked&start=0&count=20&api_key=${apiKey}`
       );
       if (!matchesRes.ok) {
-        throw new Error(`Failed to fetch match IDs for PUUID ${puuid}: ${matchesRes.status} ${matchesRes.statusText}`);
+        return res.json({
+          ...participant,
+          syncStatus: 'failed',
+          syncWarning: `매치 목록을 불러올 수 없습니다: HTTP ${matchesRes.status}`
+        });
       }
       const matchIds = await matchesRes.json();
 
@@ -127,6 +109,9 @@ async function startServer() {
       if (Array.isArray(matchIds)) {
         for (const mId of matchIds) {
           try {
+            // Small internal delay to throttle match detail requests
+            await new Promise(resolve => setTimeout(resolve, 50));
+
             const detailRes = await fetch(
               `https://asia.api.riotgames.com/lol/match/v5/matches/${mId}?api_key=${apiKey}`
             );

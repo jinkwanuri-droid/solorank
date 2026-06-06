@@ -16,19 +16,25 @@ export const TrophyIcon: React.FC<{ className?: string }> = ({ className = 'w-6 
   </svg>
 );
 
-export const CrownRankingIcon: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
-  <svg className={`${className} filter drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]`} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M2 4L6 11L12 3L18 11L22 4V20H2V4Z" fill="url(#crownGradient)" stroke="#f59e0b" strokeWidth="1.5" strokeLinejoin="round" />
-    <circle cx="12" cy="3" r="1.5" fill="#fff" />
-    <circle cx="2" cy="4" r="1" fill="#fff" />
-    <circle cx="22" cy="4" r="1" fill="#fff" />
-    <defs>
-      <linearGradient id="crownGradient" x1="12" y1="3" x2="12" y2="20" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#fbbf24" />
-        <stop offset="100%" stopColor="#d97706" />
-      </linearGradient>
-    </defs>
-  </svg>
+export const CrownRankingIcon: React.FC<{ className?: string }> = ({ className = 'w-6 h-6' }) => (
+  <div className={`relative flex items-center justify-center shrink-0 ${className}`}>
+    <div className="absolute inset-0 bg-amber-400/10 blur-[4px] rounded-full" />
+    <svg className="w-full h-full relative z-10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" stroke="url(#goldGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" stroke="url(#goldGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 22h16" stroke="url(#goldGrad)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" stroke="url(#goldGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" stroke="url(#goldGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" fill="url(#goldGrad)" stroke="url(#goldGrad)" strokeWidth="1" strokeLinejoin="round" />
+      <defs>
+        <linearGradient id="goldGrad" x1="6" y1="2" x2="18" y2="22" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#FDE68A" />
+          <stop offset="50%" stopColor="#F59E0B" />
+          <stop offset="100%" stopColor="#B45309" />
+        </linearGradient>
+      </defs>
+    </svg>
+  </div>
 );
 
 export const VictoryBadge: React.FC<{ className?: string }> = ({ className = 'w-6 h-6' }) => (

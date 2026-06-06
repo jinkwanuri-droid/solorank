@@ -37,6 +37,9 @@ export default async function handler(req: any, res: any) {
     const summonerRes = await fetch(
       `https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${puuid}?api_key=${apiKey}`
     );
+    if (!summonerRes.ok) {
+       return res.json({ ...participant, syncStatus: 'failed', syncWarning: `소환사 정보를 찾을 수 없습니다: ${summonerRes.status}` });
+    }
     const summonerData = await summonerRes.json();
     const id = summonerData?.id;
 
@@ -44,6 +47,9 @@ export default async function handler(req: any, res: any) {
     const leagueRes = await fetch(
       `https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/${id}?api_key=${apiKey}`
     );
+    if (!leagueRes.ok) {
+       return res.json({ ...participant, syncStatus: 'failed', syncWarning: `리그 정보를 찾을 수 없습니다: ${leagueRes.status}` });
+    }
     const leagueData = await leagueRes.json();
     let soloRank = null;
     if (Array.isArray(leagueData)) {
@@ -56,12 +62,18 @@ export default async function handler(req: any, res: any) {
     const matchesRes = await fetch(
       `https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?startTime=${startTime}&endTime=${endTime}&queue=420&type=ranked&start=0&count=20&api_key=${apiKey}`
     );
+    if (!matchesRes.ok) {
+       return res.json({ ...participant, syncStatus: 'failed', syncWarning: `매치 목록을 가져올 수 없습니다: ${matchesRes.status}` });
+    }
     const matchIds = await matchesRes.json();
 
     // 5. Match Details
     const matches = [];
     if (Array.isArray(matchIds)) {
       for (const mId of matchIds) {
+        // Small internal delay to throttle match detail requests
+        await new Promise(resolve => setTimeout(resolve, 50)); 
+        
         const detailRes = await fetch(`https://asia.api.riotgames.com/lol/match/v5/matches/${mId}?api_key=${apiKey}`);
         if (detailRes.ok) {
           const detail = await detailRes.json();

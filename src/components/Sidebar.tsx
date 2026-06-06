@@ -15,7 +15,7 @@ import {
   FlameStreakIcon,
   IceStreakIcon
 } from './AnimatedIcons';
-import { formatTier, getTierColor } from '../utils/lolMockData';
+import { formatTier, formatTierShort, getTierColor } from '../utils/lolMockData';
 
 interface SidebarProps {
   rules: ContestRules;
@@ -65,7 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   }, [rules.periodEnd]);
 
   return (
-    <aside id="sidebar-container" className="w-[400px] h-screen shrink-0 border-r border-slate-200 flex flex-col justify-between bg-gradient-to-b from-white via-white to-slate-50 relative z-30 select-none overflow-hidden">
+    <aside id="sidebar-container" className="w-[350px] h-screen shrink-0 border-r border-slate-200 flex flex-col justify-between bg-gradient-to-b from-white via-white to-slate-50 relative z-30 select-none overflow-hidden">
       
       {/* Decorative side mesh glow */}
       <div className="absolute top-20 left-0 w-36 h-36 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
@@ -77,7 +77,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-blue-50 border border-blue-100/80 rounded-2xl shadow-sm">
-              <SwordsIcon className="w-5.5 h-5.5 text-blue-600 rotate-12" />
+              <SwordsIcon className="w-5 h-5 text-blue-600 rotate-12" />
             </div>
             <div>
               <h1 className="text-lg font-black text-slate-900 tracking-tighter font-sans leading-tight">솔랭 달리기 리그</h1>
@@ -192,7 +192,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="p-5 border-t border-slate-200 bg-slate-50/10">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <CrownRankingIcon className="w-3.5 h-3.5 text-amber-500 shadow-amber-200" />
+            <CrownRankingIcon className="w-4 h-4" />
             <span className="text-[11px] font-bold text-slate-700 tracking-tight">종합 랭킹 TOP 5</span>
           </div>
         </div>
@@ -218,8 +218,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       {idx + 1}
                     </span>
                     <span className="text-[11px] font-bold text-slate-800 truncate w-11 shrink-0">{player.name}</span>
-                    <span className={`text-[9px] font-semibold ${getTierColor(player.currentTier)} bg-slate-50 border border-slate-100/50 px-1 py-0.5 rounded w-[72px] shrink-0 truncate text-center`}>
-                      {formatTier(player.currentTier, player.currentDivision).split(' ')[0]} {player.currentLp}L
+                    <span className={`text-[9px] ${getTierColor(player.currentTier)} bg-slate-50 border border-slate-100/50 px-1 py-0.5 rounded w-[78px] shrink-0 truncate group-hover:bg-white transition-colors`}>
+                      <span className="font-semibold">{formatTierShort(player.currentTier, player.currentDivision)}</span>
+                      <span className="font-normal whitespace-pre opacity-70">  {player.currentLp}LP</span>
                     </span>
                     <span className="text-[9px] text-slate-400 font-extrabold w-[48px] shrink-0 whitespace-nowrap text-center">
                       <span className="text-blue-500/70">{wins}W</span> {losses}L

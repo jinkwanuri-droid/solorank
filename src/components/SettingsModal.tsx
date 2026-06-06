@@ -77,9 +77,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     const newParticipantsList: Participant[] = [];
 
     lines.forEach((line) => {
-      const parts = line.trim().split(/\s+/);
-      if (parts.length < 2) return;
-      const [name, summonerPair] = parts;
+      const trimmedLine = line.trim();
+      if (!trimmedLine) return;
+
+      let name = '';
+      let summonerPair = '';
+
+      // Try splitting by TAB first to handle names with spaces correctly
+      if (trimmedLine.includes('\t')) {
+        const parts = trimmedLine.split('\t');
+        name = parts[0].trim();
+        summonerPair = parts[1]?.trim() || '';
+      } else {
+        // Fallback to space-based splitting
+        const parts = trimmedLine.split(/\s+/);
+        if (parts.length >= 2) {
+          name = parts[0].trim();
+          summonerPair = parts[1].trim();
+        }
+      }
+
+      if (!name || !summonerPair) return;
+
       const hashIdx = summonerPair.indexOf('#');
       if (hashIdx === -1) return;
 
@@ -107,9 +126,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       });
     });
 
-    onUpdateParticipants([...participants, ...newParticipantsList]);
-    setImportFeedback(`${newParticipantsList.length}명의 참가자가 추가되었습니다.`);
-    setBulkText('');
+    if (newParticipantsList.length > 0) {
+      onUpdateParticipants([...participants, ...newParticipantsList]);
+      setImportFeedback(`${newParticipantsList.length}명의 참가자가 추가되었습니다.`);
+      setBulkText('');
+    } else {
+      setImportFeedback('추가할 수 있는 참가자 데이터가 없습니다. 형식을 확인해주세요.');
+    }
   };
 
   const handleClearParticipants = () => {
@@ -259,7 +282,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50">
                   <div className="bg-white p-6 rounded-2xl w-full max-w-sm">
                     <h4 className="text-sm font-bold text-slate-800 mb-4">대량 등록</h4>
-                    <textarea value={bulkText} onChange={(e) => setBulkText(e.target.value)} placeholder="홍길동 길동#KR1" rows={6} className="w-full bg-[#F8FAFC] border border-slate-200 rounded-lg p-3 text-xs text-slate-800 mb-4 font-mono" />
+                    <textarea 
+                      value={bulkText} 
+                      onChange={(e) => setBulkText(e.target.value)} 
+                      placeholder={"참가자명 [탭] 소환사명#KR1\n홍길동\t길동#KR1\n임꺽정\t꺽정#KR2"} 
+                      rows={6} 
+                      className="w-full bg-[#F8FAFC] border border-slate-200 rounded-lg p-3 text-xs text-slate-800 mb-4 font-mono focus:outline-none focus:border-blue-500 transition-all" 
+                    />
                     <div className="flex gap-2">
                       <button onClick={() => { handleBulkImport(); setIsBulkOpen(false); }} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-xs font-bold">등록</button>
                       <button onClick={() => setIsBulkOpen(false)} className="bg-slate-200 py-2 px-4 rounded-lg text-xs font-bold">취소</button>

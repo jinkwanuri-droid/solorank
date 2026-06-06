@@ -251,6 +251,27 @@ export function formatTier(tier: LoLTier, division: number): string {
   return `${tier.charAt(0) + tier.slice(1).toLowerCase()} ${division}`;
 }
 
+export function formatTierShort(tier: LoLTier, division: number): string {
+  const abbrMap: Record<string, string> = {
+    'CHALLENGER': 'C',
+    'GRANDMASTER': 'GM',
+    'MASTER': 'M',
+    'DIAMOND': 'D',
+    'EMERALD': 'E',
+    'PLATINUM': 'P',
+    'GOLD': 'G',
+    'SILVER': 'S',
+    'BRONZE': 'B',
+    'IRON': 'I'
+  };
+  
+  const abbr = abbrMap[tier] || tier.charAt(0);
+  if (['CHALLENGER', 'GRANDMASTER', 'MASTER'].includes(tier)) {
+    return abbr;
+  }
+  return `${abbr}${division}`;
+}
+
 export function getTierColor(tier: LoLTier): string {
   switch (tier) {
     case 'CHALLENGER': return 'text-rose-400 border-rose-500/30';
