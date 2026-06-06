@@ -2,7 +2,12 @@ import "dotenv/config";
 import express from "express";
 import { initializeApp } from "firebase/app";
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
-import firebaseConfig from "../firebase-applet-config.json" assert { type: "json" };
+import fs from "fs";
+import path from "path";
+
+// Load configuration
+const configPath = path.join(process.cwd(), "firebase-applet-config.json");
+const firebaseConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
 
 // Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig);
