@@ -6,20 +6,37 @@ import fs from "fs";
 import path from "path";
 
 // Load configuration
-const configPath = path.join(process.cwd(), "firebase-applet-config.json");
-const firebaseConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
+let firebaseConfig: any;
+try {
+  const configPath = path.join(process.cwd(), "firebase-applet-config.json");
+  if (fs.existsSync(configPath)) {
+    firebaseConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
+  } else {
+    // Fallback or handle missing config
+    console.error("Firebase config file not found at:", configPath);
+  }
+} catch (e: any) {
+  console.error("Error loading firebase config:", e.message);
+}
 
 // Initialize Firebase
-const firebaseApp = initializeApp(firebaseConfig);
-const db = getFirestore(firebaseApp, firebaseConfig.firestoreDatabaseId);
+const firebaseApp = firebaseConfig ? initializeApp(firebaseConfig) : null;
+const db = firebaseApp ? getFirestore(firebaseApp, firebaseConfig.firestoreDatabaseId) : null;
 
 const app = express();
 app.use(express.json());
 
+// Helper to ensure DB is ready
+const getDb = () => {
+  if (!db) throw new Error("Firestore not initialized. Check configuration.");
+  return db;
+};
+
 // Save/Load API endpoints
 app.get("/api/lol/data", async (req, res) => {
   try {
-    const docRef = doc(db, "config", "contest");
+    const firestore = getDb();
+    const docRef = doc(firestore, "config", "contest");
     const docSnap = await getDoc(docRef);
     
     if (!docSnap.exists()) {
@@ -29,14 +46,15 @@ app.get("/api/lol/data", async (req, res) => {
     res.json(docSnap.data());
   } catch (error: any) {
     console.error("[Data] Error reading from Firestore:", error.message);
-    res.status(500).json({ error: "Failed to load contest data" });
+    res.status(500).json({ error: error.message || "Failed to load contest data" });
   }
 });
 
 app.post("/api/lol/data", async (req, res) => {
   try {
     const { rules, participants } = req.body;
-    const docRef = doc(db, "config", "contest");
+    const firestore = getDb();
+    const docRef = doc(firestore, "config", "contest");
     
     await setDoc(docRef, { 
       rules, 
@@ -47,20 +65,22 @@ app.post("/api/lol/data", async (req, res) => {
     res.json({ success: true });
   } catch (error: any) {
     console.error("[Data] Error writing to Firestore:", error.message);
-    res.status(500).json({ error: "Failed to save contest data" });
+    res.status(500).json({ error: error.message || "Failed to save contest data" });
   }
 });
 
 // Riot API Proxy handler
 app.post("/api/lol/sync", async (req, res) => {
   const { participant, rules } = req.body;
-  const apiKey = process.env.RIOT_API_KEY || process.env.VITE_RIOT_API_KEY;
+  
+  // Prioritize API key from user-provided rules (UI settings), then fallback to ENV
+  const apiKey = (rules?.riotApiKey) || process.env.RIOT_API_KEY || process.env.VITE_RIOT_API_KEY;
 
   if (!apiKey || apiKey.trim() === '' || apiKey.includes('YOUR_') || apiKey.includes('API_KEY')) {
     return res.json({
       ...participant,
       syncStatus: 'no_api_key',
-      syncWarning: '서버 RIOT_API_KEY가 등록되지 않았습니다.'
+      syncWarning: 'Riot API 키가 설정되지 않았습니다. 설정에서 키를 입력해주세요.'
     });
   }
 

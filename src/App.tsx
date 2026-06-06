@@ -31,6 +31,7 @@ const DEFAULT_RULES: ContestRules = {
   },
   lossStreakThreshold: 3,
   lossStreakPenalty: 15,
+  riotApiKey: '',
 };
 
 export default function App() {
