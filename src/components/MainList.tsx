@@ -239,22 +239,43 @@ export const MainList: React.FC<MainListProps> = ({
 
                       {/* Recent Result Mini Circles */}
                       <div className="flex gap-1 items-center justify-start overflow-x-auto py-1 scrollbar-none flex-1 min-w-0 pr-6">
-                        {p.matches.length > 0 ? (
-                          [...p.matches].slice(-10).map((m) => (
-                            <div 
-                              key={m.id}
-                              className={`w-5 h-5 rounded-md flex items-center justify-center font-black font-mono text-[8px] border shadow-sm shrink-0 ${
-                                m.win 
-                                  ? 'bg-blue-600 border-blue-500 text-white' 
-                                  : 'bg-slate-100 border-slate-200 text-slate-400'
-                              }`}
-                            >
-                              {m.win ? 'W' : 'L'}
-                            </div>
-                          ))
-                        ) : (
-                          <span className="text-[10px] text-slate-300 font-bold px-2 py-1 bg-slate-50/50 rounded-lg whitespace-nowrap">전적 없음</span>
-                        )}
+                         <div className="flex gap-1">
+                          {(() => {
+                            const recent = [...p.matches].slice(-10);
+                            const slots = [];
+                            
+                            // 1. First add the played matches
+                            for (let i = 0; i < recent.length; i++) {
+                              const m = recent[i];
+                              slots.push(
+                                <div 
+                                  key={m.id || i}
+                                  className={`w-5 h-5 rounded-md flex items-center justify-center font-black font-mono text-[8px] border shrink-0 ${
+                                    m.win 
+                                      ? 'bg-blue-600 border-blue-500 text-white shadow-sm' 
+                                      : 'bg-slate-100 border-slate-200 text-slate-400 shadow-sm'
+                                  }`}
+                                >
+                                  {m.win ? 'W' : 'L'}
+                                </div>
+                              );
+                            }
+                            
+                            // 2. Pad up to 10 total slots if fewer than 10 matches
+                            for (let i = recent.length; i < 10; i++) {
+                              slots.push(
+                                <div 
+                                  key={`empty-${i}`}
+                                  className="w-5 h-5 rounded-md flex items-center justify-center font-black font-mono text-[8px] border shrink-0 bg-transparent border-slate-200 border-dashed text-slate-200"
+                                >
+                                  -
+                                </div>
+                              );
+                            }
+                            
+                            return slots;
+                          })()}
+                        </div>
                       </div>
 
                       {/* Final Points */}

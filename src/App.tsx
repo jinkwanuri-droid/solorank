@@ -11,6 +11,9 @@ import { SettingsModal } from './components/SettingsModal';
 import { DetailView } from './components/DetailView';
 import { calculateParticipantScore, generateRandomMatch } from './utils/lolMockData';
 
+import { saveContestData, loadContestData } from './db/firebase';
+
+// ... (Rest remains the same)
 // Starting default rules parameters
 const DEFAULT_RULES: ContestRules = {
   periodStart: new Date(new Date().getTime() - 24 * 60 * 60 * 1000 * 2).toISOString(), // 2 days ago
@@ -56,16 +59,12 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // Synchronize rules & participants with Node backend server dynamically
+  // Synchronize rules & participants with Firestore dynamically
   const syncToBackend = async (currentRules: ContestRules, currentParticipants: Participant[]) => {
     try {
-      await fetch('/api/lol/data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rules: currentRules, participants: currentParticipants })
-      });
+      await saveContestData(currentRules, currentParticipants);
     } catch (e) {
-      console.warn('Failed to sync data to backend server storage:', e);
+      console.warn('Failed to sync data to Firestore:', e);
     }
   };
 
@@ -74,17 +73,14 @@ export default function App() {
     const loadInitialData = async () => {
       let isLoadedFromServer = false;
       try {
-        const response = await fetch('/api/lol/data');
-        if (response.ok) {
-          const serverData = await response.json();
-          if (serverData && serverData.rules && serverData.participants) {
-            setRules(serverData.rules);
-            const recalculated = serverData.participants.map((p: Participant) => 
-              calculateParticipantScore(p, serverData.rules)
-            );
-            setParticipants(recalculated);
-            isLoadedFromServer = true;
-          }
+        const serverData = await loadContestData();
+        if (serverData && serverData.rules && serverData.participants) {
+          setRules(serverData.rules);
+          const recalculated = serverData.participants.map((p: Participant) => 
+            calculateParticipantScore(p, serverData.rules)
+          );
+          setParticipants(recalculated);
+          isLoadedFromServer = true;
         }
       } catch (err) {
         console.warn("Failed to load initial data from server. Fallback to local storage or seeds.", err);
