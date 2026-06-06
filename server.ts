@@ -18,7 +18,7 @@ async function startServer() {
   // Riot API Proxy handler
   app.post("/api/lol/sync", async (req, res) => {
     const { participant, rules } = req.body;
-    const apiKey = process.env.RIOT_API_KEY || rules.riotApiKey;
+    const apiKey = process.env.RIOT_API_KEY || process.env.VITE_RIOT_API_KEY || rules.riotApiKey;
 
     if (!apiKey) {
       return res.status(400).json({ error: "Riot API Key is required" });
