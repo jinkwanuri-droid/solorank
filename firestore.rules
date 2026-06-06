@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Config collection for global contest data
+    // In this app, we allow anyone to read/write since it's a simple shared demo
+    // but in a production app, you'd want to restrict this to authenticated admins.
+    match /config/contest {
+      allow read, write: if true;
+    }
+  }
+}

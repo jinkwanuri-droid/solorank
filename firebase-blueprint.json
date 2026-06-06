@@ -1,0 +1,31 @@
+{
+  "entities": {
+    "contestData": {
+      "title": "Contest Data",
+      "description": "Global state for the league contest including rules and participants",
+      "type": "object",
+      "properties": {
+        "rules": {
+          "type": "object",
+          "description": "Contest scoring rules"
+        },
+        "participants": {
+          "type": "array",
+          "description": "List of active participants"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp"
+        }
+      },
+      "required": ["rules", "participants", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "config/contest": {
+      "schema": "contestData",
+      "description": "Single document holding the entire contest state"
+    }
+  }
+}
