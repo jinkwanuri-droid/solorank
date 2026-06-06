@@ -362,11 +362,11 @@ export default function App() {
     }
   }, [participants]);
 
-  // Set up 1-minute automatic sync interval
+  // Set up 30-second automatic sync interval
   useEffect(() => {
     const timer = setInterval(() => {
       handleSyncAll(true);
-    }, 60000); // 1 minute (60,000ms)
+    }, 30000); // 30 seconds (30,000ms)
 
     return () => clearInterval(timer);
   }, []);
