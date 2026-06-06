@@ -42,14 +42,9 @@ export default async function handler(req: any, res: any) {
     const puuid = accountData?.puuid;
     if (!puuid) throw new Error("PUUID missing");
 
-    // 2. Get Summoner ID
-    const summonerRes = await fetch(`https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${puuid}`, { headers });
-    if (!summonerRes.ok) return res.json({ ...participant, syncStatus: 'failed', syncWarning: `소환사 정보 조회 실패: ${summonerRes.status}` });
-    const summonerData = await summonerRes.json();
-    const id = summonerData?.id;
-
+    // 2. We don't need Summoner ID anymore, Riot updated League API to use PUUID
     // 3. Get League Entry
-    const leagueRes = await fetch(`https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/${id}`, { headers });
+    const leagueRes = await fetch(`https://kr.api.riotgames.com/lol/league/v4/entries/by-puuid/${puuid}`, { headers });
     if (!leagueRes.ok) return res.json({ ...participant, syncStatus: 'failed', syncWarning: `티어 정보 조회 실패: ${leagueRes.status}` });
     const leagueData = await leagueRes.json();
     const soloRank = Array.isArray(leagueData) ? leagueData.find((e: any) => e.queueType === 'RANKED_SOLO_5x5') : null;
