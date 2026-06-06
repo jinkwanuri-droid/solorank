@@ -159,7 +159,7 @@ export const MainList: React.FC<MainListProps> = ({
                   )}
 
                   {/* Left Identity Section */}
-                  <div className="relative z-10 flex items-center gap-6 flex-none w-[320px] min-w-0">
+                  <div className="relative z-10 flex items-center gap-6 flex-none w-[380px] min-w-0">
                     <div className="w-12 h-12 shrink-0 flex items-center justify-center">
                       {idx === 0 ? (
                         <div className="flex items-center justify-center bg-amber-50 border border-amber-200/50 w-10 h-10 rounded-xl">
@@ -174,13 +174,13 @@ export const MainList: React.FC<MainListProps> = ({
                       )}
                     </div>
 
-                    <div className="min-w-0 flex flex-col gap-0.5">
-                      <div className="flex items-center gap-3 w-full">
-                        <strong className="text-2xl text-slate-900 font-black group-hover:text-blue-600 transition-colors tracking-tighter leading-tight truncate">
+                    <div className="min-w-0 flex flex-col gap-0.5 flex-1">
+                      <div className="flex items-center gap-8 w-full">
+                        <strong className="text-2xl text-slate-900 font-black group-hover:text-blue-600 transition-colors tracking-tighter leading-tight shrink-0">
                           {p.name}
                         </strong>
                         <div className="flex items-center gap-1.5 min-w-0">
-                          <span className="text-[9px] text-slate-400 font-mono font-bold truncate px-1.5 py-0.5 rounded-md bg-slate-50 border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors shrink-0">
+                          <span className="text-[9px] text-slate-400 font-mono font-bold truncate px-1.5 py-0.5 rounded-md bg-slate-50 border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
                             {p.summonerName}#{p.tagLine}
                           </span>
                           {p.syncWarning && (
@@ -223,8 +223,8 @@ export const MainList: React.FC<MainListProps> = ({
                     </div>
                   </div>
 
-                  {/* Right Content Grouped - Stat block moved left */}
-                  <div className="relative z-10 flex items-center gap-6 flex-1 justify-start ml-4">
+                  {/* Right Content Grouped - Stat, Matches, Points clustered to right */}
+                  <div className="relative z-10 flex items-center justify-end flex-1 gap-10 min-w-0">
                     {/* Compact Vertical Stats */}
                     <div className="flex items-center gap-6 border-r border-slate-100 pr-6 h-9 shrink-0">
                        <div className="flex flex-col items-start leading-none">
@@ -237,8 +237,8 @@ export const MainList: React.FC<MainListProps> = ({
                        </div>
                     </div>
 
-                    {/* Recent Result Mini Circles - Left aligned within this block */}
-                    <div className="flex gap-1 items-center justify-start overflow-x-auto py-1 scrollbar-none flex-1 min-w-0">
+                    {/* Recent Result Mini Circles */}
+                    <div className="flex gap-1 items-center justify-start overflow-x-auto py-1 scrollbar-none min-w-0">
                       {p.matches.length > 0 ? (
                         [...p.matches].slice(-10).map((m) => (
                           <div 
@@ -256,12 +256,12 @@ export const MainList: React.FC<MainListProps> = ({
                         <span className="text-[10px] text-slate-300 font-bold px-2 py-1 bg-slate-50/50 rounded-lg whitespace-nowrap">전적 없음</span>
                       )}
                     </div>
-                  </div>
 
-                  {/* Final Points - Emphasis (Keep this on the far right) */}
-                  <div className="relative z-10 text-right flex items-end gap-0.5 min-w-[80px] justify-end">
-                    <strong className="text-4xl font-extrabold text-blue-600 font-sans tracking-tight leading-none">{p.totalPoints}</strong>
-                    <span className="text-lg text-blue-400 font-light mb-0.5 font-sans">P</span>
+                    {/* Final Points */}
+                    <div className="text-right flex items-end gap-0.5 min-w-[80px] justify-end shrink-0">
+                      <strong className="text-4xl font-extrabold text-blue-600 font-sans tracking-tight leading-none">{p.totalPoints}</strong>
+                      <span className="text-lg text-blue-400 font-light mb-0.5 font-sans">P</span>
+                    </div>
                   </div>
                 </motion.div>
               );

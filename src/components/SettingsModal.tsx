@@ -34,7 +34,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [lpMultiplier, setLpMultiplier] = useState(rules.lpMultiplier);
   const [winPoints, setWinPoints] = useState(rules.winPoints);
   const [lossPoints, setLossPoints] = useState(rules.lossPoints);
-  const [riotApiKey, setRiotApiKey] = useState(rules.riotApiKey || '');
   const [winStreakThresholds, setWinStreakThresholds] = useState(rules.winStreakThresholds || { 3: 3, 5: 5, 7: 7, 10: 10 });
   const [winStreakBonuses, setWinStreakBonuses] = useState(rules.winStreakBonuses || { 3: 10, 5: 20, 7: 30, 10: 50 });
   const [lossStreakThreshold, setLossStreakThreshold] = useState(rules.lossStreakThreshold);
@@ -58,7 +57,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       periodEnd,
       winPoints: Number(winPoints),
       lossPoints: Number(lossPoints),
-      riotApiKey: riotApiKey.trim(),
       winStreakThresholds: {
         3: Number(winStreakThresholds[3]),
         5: Number(winStreakThresholds[5]),
@@ -199,21 +197,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         <div className="flex-1 overflow-y-auto px-8 py-6 scrollbar-none rounded-b-[40px]">
           {activeTab === 'game' ? (
             <form onSubmit={handleSaveConfig} className="space-y-10">
-              <div>
-                <h3 className="text-[13px] font-bold text-blue-600 uppercase tracking-[0.2em] mb-4">전적 연동 설정</h3>
-                <div className="space-y-2">
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-tight ml-1">Riot Developer API Key</label>
-                  <input 
-                    type="password" 
-                    value={riotApiKey} 
-                    onChange={(e) => setRiotApiKey(e.target.value)} 
-                    placeholder="RGAPI-XXXX-XXXX-XXXX-XXXX"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 px-4 text-sm text-slate-800 font-mono focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all" 
-                  />
-                  <p className="text-[10px] text-slate-400 ml-1">Riot API 키가 있어야 실시간 전적을 가져올 수 있습니다.</p>
-                </div>
-              </div>
-
               <div>
                 <h3 className="text-[13px] font-bold text-blue-600 uppercase tracking-[0.2em] mb-6">내기 시간 설정</h3>
                 <div className="grid grid-cols-2 gap-8">

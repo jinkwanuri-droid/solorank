@@ -52,7 +52,14 @@ export default async function handler(req: any, res: any) {
     // 4. Match IDs
     const startTime = Math.floor(new Date(rules.periodStart).getTime() / 1000);
     const endTime = Math.floor(new Date(rules.periodEnd).getTime() / 1000);
-    const matchesRes = await fetch(`https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?startTime=${startTime}&endTime=${endTime}&queue=420&type=ranked&start=0&count=10`, { headers });
+    // Request fewer matches to stay within rate limits for Dev Keys
+    const matchesRes = await fetch(`https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?startTime=${startTime}&endTime=${endTime}&queue=420&type=ranked&start=0&count=5`, { headers });
+    
+    if (!matchesRes.ok) {
+        if (matchesRes.status === 429) return res.json({ ...participant, syncStatus: 'failed', syncWarning: 'Riot API 요청 한도 초과(429). 잠시 후 다시 시도해주세요.' });
+        return res.json({ ...participant, syncStatus: 'failed', syncWarning: `매치 목록 조회 실패: ${matchesRes.status}` });
+    }
+    
     const matchIds = await matchesRes.json();
 
     // 5. Match Details
@@ -60,7 +67,8 @@ export default async function handler(req: any, res: any) {
     if (Array.isArray(matchIds)) {
       for (const mId of matchIds) {
         try {
-          await new Promise(r => setTimeout(r, 50));
+          // Increase delay between match details slightly
+          await new Promise(r => setTimeout(r, 150));
           const dRes = await fetch(`https://asia.api.riotgames.com/lol/match/v5/matches/${mId}`, { headers });
           if (!dRes.ok) continue;
           const d = await dRes.json();

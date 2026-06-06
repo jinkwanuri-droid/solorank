@@ -289,8 +289,8 @@ export default function App() {
 
         while (retryCount <= maxRetries && !success) {
           try {
-            // Add a base delay between participants to respect rate limits (Dev keys are very strict)
-            if (i > 0 || retryCount > 0) await delay(800); 
+            // Increased delay to respect strict Riot Dev Key 2-minute limits
+            if (i > 0 || retryCount > 0) await delay(2000); 
 
             const response = await fetch('/api/lol/sync', {
               method: 'POST',
@@ -301,32 +301,36 @@ export default function App() {
             if (response.ok) {
               const syncedData = await response.json();
               
-              // If the proxy returns a 429 warning inside the body (handled error)
-              if (syncedData.syncWarning?.includes('429')) {
-                throw new Error('429_TOO_MANY_REQUESTS');
+              if (syncedData.syncStatus === 'failed') {
+                updatedParticipants[i] = {
+                  ...p,
+                  syncStatus: 'failed',
+                  syncWarning: syncedData.syncWarning || '연동 실패'
+                };
+                success = true;
+                continue;
               }
 
-              // Calculate score based on new matches and tier info
               updatedParticipants[i] = calculateParticipantScore(syncedData, currentRules);
               success = true;
             } else if (response.status === 429) {
               throw new Error('429_TOO_MANY_REQUESTS');
             } else {
-              // Other errors - don't retry, just log and move on
               console.error(`Failed to sync ${p.name}: HTTP ${response.status}`);
-              success = true; // Break retry loop
+              updatedParticipants[i] = { ...p, syncStatus: 'failed', syncWarning: `HTTP ${response.status}` };
+              success = true; 
             }
           } catch (err: any) {
             if (err.message === '429_TOO_MANY_REQUESTS') {
               retryCount++;
               if (retryCount <= maxRetries) {
-                // Wait longer on 429 (exponential-ish backoff)
-                await delay(2000 * retryCount);
+                await delay(5000 * retryCount);
                 continue; 
               }
             }
             console.error(`Failed to sync ${p.name}:`, err);
-            success = true; // Break retry loop
+            updatedParticipants[i] = { ...p, syncStatus: 'failed', syncWarning: '연동 오류' };
+            success = true;
           }
         }
       }
