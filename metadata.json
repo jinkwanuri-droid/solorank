@@ -1,0 +1,8 @@
+{
+  "name": "롤 솔랭 랭킹 달리기 컨텐츠 대시보드",
+  "description": "롤 솔랭 내기 전적 및 가중치 스코어 연산 대시보드 - 방송 최적화 OBS 송출 오버레이 탑재",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
