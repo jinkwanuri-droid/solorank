@@ -50,6 +50,10 @@ export interface Participant {
   winStreakCount: number; // Current active win streak
   lossStreakCount: number; // Current active loss streak
   totalPoints: number; // Final combined scoreboard score
+  
+  // Sync status metadata
+  syncStatus?: string;
+  syncWarning?: string | null;
 }
 
 export interface ContestRules {

@@ -38,6 +38,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [winStreakBonuses, setWinStreakBonuses] = useState(rules.winStreakBonuses || { 3: 10, 5: 20, 7: 30, 10: 50 });
   const [lossStreakThreshold, setLossStreakThreshold] = useState(rules.lossStreakThreshold);
   const [lossStreakPenalty, setLossStreakPenalty] = useState(rules.lossStreakPenalty);
+  const [riotApiKey, setRiotApiKey] = useState(rules.riotApiKey || '');
   
   const [bulkText, setBulkText] = useState('');
   const [importFeedback, setImportFeedback] = useState<string | null>(null);
@@ -67,6 +68,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       },
       lossStreakThreshold: Number(lossStreakThreshold),
       lossStreakPenalty: Number(lossStreakPenalty),
+      riotApiKey: riotApiKey,
     });
     onClose();
   };
@@ -80,22 +82,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       const trimmedLine = line.trim();
       if (!trimmedLine) return;
 
+      // Split by the first whitespace so that the first part is the Participant's name,
+      // and everything after is the summoner ID with tagline (which can contain spaces).
+      const firstSpaceIdx = trimmedLine.search(/\s/);
       let name = '';
       let summonerPair = '';
 
-      // Split by spaces and handle names that might have spaces by assuming the last part is the summoner info
-      const parts = trimmedLine.split(/\s+/);
-      if (parts.length >= 2) {
-        // The last part should be the summoner#tag
-        const lastPart = parts[parts.length - 1];
-        if (lastPart.includes('#')) {
-          summonerPair = lastPart;
-          name = parts.slice(0, -1).join(' ');
-        } else {
-          // Fallback
-          name = parts[0];
-          summonerPair = parts[1];
-        }
+      if (firstSpaceIdx !== -1) {
+        name = trimmedLine.substring(0, firstSpaceIdx).trim();
+        summonerPair = trimmedLine.substring(firstSpaceIdx + 1).trim();
+      } else {
+        return;
       }
 
       if (!name || !summonerPair) return;
@@ -103,8 +100,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       const hashIdx = summonerPair.indexOf('#');
       if (hashIdx === -1) return;
 
-      const summonerName = summonerPair.substring(0, hashIdx);
-      const tagLine = summonerPair.substring(hashIdx + 1);
+      const summonerName = summonerPair.substring(0, hashIdx).trim();
+      const tagLine = summonerPair.substring(hashIdx + 1).trim();
 
       newParticipantsList.push({
         id: `p_${Math.random().toString(36).substring(2, 11)}`,
@@ -192,6 +189,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     />
                   </div>
                 </div>
+              </div>
+
+              <div>
+                <h3 className="text-[13px] font-bold text-blue-600 uppercase tracking-[0.2em] mb-3">Riot API Key 설정</h3>
+                <p className="text-[11px] text-slate-400 mb-4 leading-relaxed">
+                  개발자 및 로컬 프리뷰 환경에서 전적을 실시간 연동하려면 Riot API Key를 입력하세요. (브라우저 로컬 저장소에 안전하게 유지됩니다.)
+                </p>
+                <input 
+                  type="password" 
+                  value={riotApiKey} 
+                  onChange={(e) => setRiotApiKey(e.target.value)} 
+                  placeholder="예: RGAPI-XXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" 
+                  className="w-full bg-[#F8FAFC] border border-slate-200 rounded-2xl py-3.5 px-4 text-xs font-mono focus:outline-none focus:border-blue-500 transition-all placeholder:text-slate-300" 
+                />
               </div>
 
 

@@ -164,7 +164,8 @@ export function calculateParticipantScore(
   participant: Participant, 
   rules: ContestRules
 ): Participant {
-  const startAbs = getAbsoluteLp(participant.startTier, participant.startDivision, participant.startLp);
+  // Let's check if they synced successfully
+  const isSynced = participant.syncStatus === 'success';
   
   // Filter matches within period [periodStart, periodEnd]
   const validMatches = participant.matches.filter(m => {
@@ -177,6 +178,28 @@ export function calculateParticipantScore(
     (a, b) => new Date(a.gameStartTime).getTime() - new Date(b.gameStartTime).getTime()
   );
   
+  let startTier = participant.startTier;
+  let startDivision = participant.startDivision;
+  let startLp = participant.startLp;
+
+  if (isSynced) {
+    const currentSyncedAbs = getAbsoluteLp(participant.currentTier, participant.currentDivision, participant.currentLp);
+    
+    let netMatchLpChange = 0;
+    for (const m of sortedMatches) {
+      netMatchLpChange += m.lpChange;
+    }
+    
+    // Calculate start ABS by working backwards from current synced absolute LP
+    const calculatedStartAbs = Math.max(0, currentSyncedAbs - netMatchLpChange);
+    const calculatedStartState = getTierDivisionLpFromAbsolute(calculatedStartAbs);
+    
+    startTier = calculatedStartState.tier;
+    startDivision = calculatedStartState.division;
+    startLp = calculatedStartState.lp;
+  }
+
+  const startAbs = getAbsoluteLp(startTier, startDivision, startLp);
   let currentAbs = startAbs;
   let winStreakCount = 0;
   let lossStreakCount = 0;
@@ -220,7 +243,13 @@ export function calculateParticipantScore(
   
   const curState = getTierDivisionLpFromAbsolute(currentAbs);
   
-  // Calculate Base LP Diff points (Optional: could add a weight for LP gained/lost)
+  // For synced participants, we preserve their exact actual synced tier/division/LP as current
+  // For non-synced simulated participants, we use the computed ones From start + match diffs
+  const finalCurrentTier = isSynced ? participant.currentTier : curState.tier;
+  const finalCurrentDivision = isSynced ? participant.currentDivision : curState.division;
+  const finalCurrentLp = isSynced ? participant.currentLp : curState.lp;
+
+  // Calculate Base LP Diff points
   const lpDiffPoints = basePoints;
   
   // Total point calc
@@ -228,9 +257,12 @@ export function calculateParticipantScore(
   
   return {
     ...participant,
-    currentTier: curState.tier,
-    currentDivision: curState.division,
-    currentLp: curState.lp,
+    startTier,
+    startDivision,
+    startLp,
+    currentTier: finalCurrentTier,
+    currentDivision: finalCurrentDivision,
+    currentLp: finalCurrentLp,
     matches: sortedMatches, // keep chronologically sorted
     lpDiffPoints,
     winStreakPoints,
