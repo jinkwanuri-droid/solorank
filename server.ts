@@ -1,8 +1,10 @@
+import "dotenv/config";
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import fs from "fs/promises";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -13,29 +15,52 @@ async function startServer() {
 
   app.use(express.json());
 
+  const DATA_FILE = path.join(process.cwd(), "contest_data.json");
+
+  // Save/Load API endpoints for cross-device shared configuration
+  app.get("/api/lol/data", async (req, res) => {
+    try {
+      const exists = await fs.access(DATA_FILE).then(() => true).catch(() => false);
+      if (!exists) {
+        return res.json({ rules: null, participants: null });
+      }
+      const content = await fs.readFile(DATA_FILE, "utf-8");
+      res.json(JSON.parse(content));
+    } catch (error: any) {
+      console.error("Error reading data file:", error.message);
+      res.status(500).json({ error: "Failed to load stored contest data" });
+    }
+  });
+
+  app.post("/api/lol/data", async (req, res) => {
+    try {
+      const { rules, participants } = req.body;
+      const dataToSave = { rules, participants };
+      await fs.writeFile(DATA_FILE, JSON.stringify(dataToSave, null, 2), "utf-8");
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error writing data file:", error.message);
+      res.status(500).json({ error: "Failed to persist contest data" });
+    }
+  });
+
   // API Routes
   
   // Riot API Proxy handler
   app.post("/api/lol/sync", async (req, res) => {
     const { participant, rules } = req.body;
-    const apiKey = process.env.RIOT_API_KEY || process.env.VITE_RIOT_API_KEY || rules.riotApiKey;
+    const apiKey = process.env.RIOT_API_KEY || process.env.VITE_RIOT_API_KEY;
 
-    if (!apiKey) {
-      return res.status(400).json({ error: "Riot API Key is required" });
+    if (!apiKey || apiKey.trim() === '' || apiKey.includes('YOUR_') || apiKey.includes('API_KEY')) {
+      return res.json({
+        ...participant,
+        syncStatus: 'no_api_key',
+        syncWarning: '서버 환경 변수(RIOT_API_KEY)가 등록되지 않아 전적 조회를 실행할 수 없습니다.'
+      });
     }
 
     try {
       const { summonerName, tagLine } = participant;
-      
-      // Verify API key formatting or if it's a placeholder
-      if (!apiKey || apiKey.trim() === '' || apiKey.includes('YOUR_') || apiKey.includes('API_KEY')) {
-        console.warn(`Sync skipped for ${summonerName}#${tagLine}: Valid Riot API Key is not configured.`);
-        return res.json({
-          ...participant,
-          syncStatus: 'no_api_key',
-          syncWarning: 'Riot API 키가 설정되지 않아 로컬 데이터를 유지합니다.'
-        });
-      }
 
       // 1. Get PUUID from Riot ID
       const accountRes = await fetch(

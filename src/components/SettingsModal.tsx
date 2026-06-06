@@ -38,7 +38,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [winStreakBonuses, setWinStreakBonuses] = useState(rules.winStreakBonuses || { 3: 10, 5: 20, 7: 30, 10: 50 });
   const [lossStreakThreshold, setLossStreakThreshold] = useState(rules.lossStreakThreshold);
   const [lossStreakPenalty, setLossStreakPenalty] = useState(rules.lossStreakPenalty);
-  const [riotApiKey, setRiotApiKey] = useState(rules.riotApiKey || '');
   
   const [bulkText, setBulkText] = useState('');
   const [importFeedback, setImportFeedback] = useState<string | null>(null);
@@ -68,7 +67,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       },
       lossStreakThreshold: Number(lossStreakThreshold),
       lossStreakPenalty: Number(lossStreakPenalty),
-      riotApiKey: riotApiKey,
     });
     onClose();
   };
@@ -190,22 +188,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                 </div>
               </div>
-
-              <div>
-                <h3 className="text-[13px] font-bold text-blue-600 uppercase tracking-[0.2em] mb-3">Riot API Key 설정</h3>
-                <p className="text-[11px] text-slate-400 mb-4 leading-relaxed">
-                  개발자 및 로컬 프리뷰 환경에서 전적을 실시간 연동하려면 Riot API Key를 입력하세요. (브라우저 로컬 저장소에 안전하게 유지됩니다.)
-                </p>
-                <input 
-                  type="password" 
-                  value={riotApiKey} 
-                  onChange={(e) => setRiotApiKey(e.target.value)} 
-                  placeholder="예: RGAPI-XXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" 
-                  className="w-full bg-[#F8FAFC] border border-slate-200 rounded-2xl py-3.5 px-4 text-xs font-mono focus:outline-none focus:border-blue-500 transition-all placeholder:text-slate-300" 
-                />
-              </div>
-
-
 
               <div>
                 <h4 className="text-[13px] font-bold text-blue-600 uppercase tracking-wider mb-4">포인트 규칙</h4>

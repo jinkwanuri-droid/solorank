@@ -55,37 +55,71 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // 1. Load initial State from localStorage or seed
+  // Synchronize rules & participants with Node backend server dynamically
+  const syncToBackend = async (currentRules: ContestRules, currentParticipants: Participant[]) => {
+    try {
+      await fetch('/api/lol/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rules: currentRules, participants: currentParticipants })
+      });
+    } catch (e) {
+      console.warn('Failed to sync data to backend server storage:', e);
+    }
+  };
+
+  // 1. Load initial State from server database or fallback to localStorage / seed
   useEffect(() => {
-    const savedRules = localStorage.getItem('lol_contest_rules');
-    const savedParticipants = localStorage.getItem('lol_contest_participants');
-
-    if (savedRules) {
+    const loadInitialData = async () => {
+      let isLoadedFromServer = false;
       try {
-        const parsed = JSON.parse(savedRules);
-        // Merge with DEFAULT_RULES to ensure new fields (like winStreakBonuses object) are present
-        setRules({ ...DEFAULT_RULES, ...parsed });
-      } catch (e) {
-        console.error('Error parsing rules', e);
+        const response = await fetch('/api/lol/data');
+        if (response.ok) {
+          const serverData = await response.json();
+          if (serverData && serverData.rules && serverData.participants) {
+            setRules(serverData.rules);
+            const recalculated = serverData.participants.map((p: Participant) => 
+              calculateParticipantScore(p, serverData.rules)
+            );
+            setParticipants(recalculated);
+            isLoadedFromServer = true;
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to load initial data from server. Fallback to local storage or seeds.", err);
       }
-    }
 
-    if (savedParticipants) {
-      try {
-        const parsedParticipants = JSON.parse(savedParticipants);
-        // Re-calculate scores upon load to ensure they match current rules logic
-        const currentRules = savedRules ? { ...DEFAULT_RULES, ...JSON.parse(savedRules) } : DEFAULT_RULES;
-        const recalculated = parsedParticipants.map((p: Participant) => calculateParticipantScore(p, currentRules));
-        setParticipants(recalculated);
-        return;
-      } catch (e) {
-        console.error('Error parsing participants', e);
+      if (isLoadedFromServer) return;
+
+      const savedRules = localStorage.getItem('lol_contest_rules');
+      const savedParticipants = localStorage.getItem('lol_contest_participants');
+      let currentRules = DEFAULT_RULES;
+
+      if (savedRules) {
+        try {
+          const parsed = JSON.parse(savedRules);
+          currentRules = { ...DEFAULT_RULES, ...parsed };
+          setRules(currentRules);
+        } catch (e) {
+          console.error('Error parsing rules', e);
+        }
       }
-    }
 
-    // Pre-seed elite players on first run
-    const seedRules = savedRules ? { ...DEFAULT_RULES, ...JSON.parse(savedRules) } : DEFAULT_RULES;
-    const seeds: Participant[] = [
+      if (savedParticipants) {
+        try {
+          const parsedParticipants = JSON.parse(savedParticipants);
+          const recalculated = parsedParticipants.map((p: Participant) => calculateParticipantScore(p, currentRules));
+          setParticipants(recalculated);
+          syncToBackend(currentRules, recalculated);
+          return;
+        } catch (e) {
+          console.error('Error parsing participants', e);
+        }
+      }
+
+      // Pre-seed elite players on first run
+      const seedRules = savedRules ? { ...DEFAULT_RULES, ...JSON.parse(savedRules) } : DEFAULT_RULES;
+      const seeds: Participant[] = [
       {
         id: 'seed_1',
         name: '쵸비',
@@ -199,7 +233,11 @@ export default function App() {
 
     setParticipants(preSeeded);
     localStorage.setItem('lol_contest_participants', JSON.stringify(preSeeded));
-  }, []);
+    syncToBackend(seedRules, preSeeded);
+  };
+
+  loadInitialData();
+}, []);
 
   // Update dynamic scores whenever rules parameters swap
   const handleSaveRules = (updatedRules: ContestRules) => {
@@ -210,6 +248,7 @@ export default function App() {
     const updatedParticipants = participants.map((p) => calculateParticipantScore(p, updatedRules));
     setParticipants(updatedParticipants);
     localStorage.setItem('lol_contest_participants', JSON.stringify(updatedParticipants));
+    syncToBackend(updatedRules, updatedParticipants);
 
     // Sync selected participant drawer to preserve mathematical updates live
     if (selectedParticipant) {
@@ -221,6 +260,7 @@ export default function App() {
   const handleUpdateParticipants = (updatedList: Participant[]) => {
     setParticipants(updatedList);
     localStorage.setItem('lol_contest_participants', JSON.stringify(updatedList));
+    syncToBackend(rules, updatedList);
     
     if (selectedParticipant) {
       const freshSelected = updatedList.find(p => p.id === selectedParticipant.id);
@@ -292,6 +332,7 @@ export default function App() {
       
       setParticipants(updatedParticipants);
       localStorage.setItem('lol_contest_participants', JSON.stringify(updatedParticipants));
+      syncToBackend(currentRules, updatedParticipants);
       
       setSelectedParticipant(prevSelected => {
         if (!prevSelected) return null;
@@ -350,6 +391,7 @@ export default function App() {
 
     setParticipants(updatedParticipants);
     localStorage.setItem('lol_contest_participants', JSON.stringify(updatedParticipants));
+    syncToBackend(rules, updatedParticipants);
 
     if (selectedParticipant) {
       const freshSelected = updatedParticipants.find(p => p.id === selectedParticipant.id);
