@@ -158,43 +158,44 @@ export const MainList: React.FC<MainListProps> = ({
                     </div>
                   )}
 
-                  {/* Left Identity Section */}
-                  <div className="relative z-10 flex items-center gap-6 flex-none w-[380px] min-w-0">
-                    <div className="w-12 h-12 shrink-0 flex items-center justify-center">
-                      {idx === 0 ? (
-                        <div className="flex items-center justify-center bg-amber-50 border border-amber-200/50 w-10 h-10 rounded-xl">
-                          <CrownRankingIcon className="w-5 h-5" />
-                        </div>
-                      ) : (
-                        <span className={`text-2xl font-black font-mono tracking-tighter transition-colors ${
-                          idx === 1 ? 'text-slate-400' : idx === 2 ? 'text-orange-300' : 'text-slate-200 group-hover:text-slate-300'
-                        }`}>
-                          {idx + 1}
-                        </span>
-                      )}
+                  <div className="flex items-center flex-1 min-w-0">
+                    {/* Col 1: Rank Icon & Name */}
+                    <div className="flex items-center gap-5 w-[160px] shrink-0">
+                      <div className="w-12 h-12 shrink-0 flex items-center justify-center">
+                        {idx === 0 ? (
+                          <div className="flex items-center justify-center bg-amber-50 border border-amber-200/50 w-10 h-10 rounded-xl">
+                            <CrownRankingIcon className="w-5 h-5" />
+                          </div>
+                        ) : (
+                          <span className={`text-2xl font-black font-mono tracking-tighter transition-colors ${
+                            idx === 1 ? 'text-slate-400' : idx === 2 ? 'text-orange-300' : 'text-slate-200 group-hover:text-slate-300'
+                          }`}>
+                            {idx + 1}
+                          </span>
+                        )}
+                      </div>
+                      <strong className="text-2xl text-slate-900 font-black group-hover:text-blue-600 transition-colors tracking-tighter leading-tight truncate px-1">
+                        {p.name}
+                      </strong>
                     </div>
 
-                    <div className="min-w-0 flex flex-col gap-0.5 flex-1">
-                      <div className="flex items-center gap-8 w-full">
-                        <strong className="text-2xl text-slate-900 font-black group-hover:text-blue-600 transition-colors tracking-tighter leading-tight shrink-0">
-                          {p.name}
-                        </strong>
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <span className="text-[9px] text-slate-400 font-mono font-bold truncate px-1.5 py-0.5 rounded-md bg-slate-50 border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
-                            {p.summonerName}#{p.tagLine}
+                    {/* Col 2: Riot ID & Tier/LP */}
+                    <div className="flex flex-col gap-1.5 w-[260px] shrink-0">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="text-[10px] text-slate-400 font-mono font-bold truncate px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200/50 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
+                          {p.summonerName}#{p.tagLine}
+                        </span>
+                        {p.syncWarning && (
+                          <span 
+                            className="shrink-0 flex items-center justify-center bg-rose-50 text-rose-500 border border-rose-100 rounded-md px-1.5 py-0.5 text-[9px] font-bold cursor-help transition-all hover:bg-rose-100 group-hover:z-20 relative"
+                            title={p.syncWarning}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3 mr-0.5">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                            </svg>
+                            연동 오류
                           </span>
-                          {p.syncWarning && (
-                            <span 
-                              className="shrink-0 flex items-center justify-center bg-rose-50 text-rose-500 border border-rose-100 rounded-md px-1.5 py-0.5 text-[9px] font-bold cursor-help transition-all hover:bg-rose-100 group-hover:z-20 relative"
-                              title={p.syncWarning}
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3 mr-0.5">
-                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-                              </svg>
-                              연동 오류
-                            </span>
-                          )}
-                        </div>
+                        )}
                       </div>
                       <div className={`text-[10px] font-bold ${getTierColor(p.currentTier)} bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap w-fit`}>
                         <span className="text-slate-700">{formatTier(p.currentTier, p.currentDivision)}</span>
@@ -221,46 +222,46 @@ export const MainList: React.FC<MainListProps> = ({
                         })()}
                       </div>
                     </div>
-                  </div>
 
-                  {/* Right Content Grouped - Stat, Matches, Points clustered to right */}
-                  <div className="relative z-10 flex items-center justify-end flex-1 gap-10 min-w-0">
-                    {/* Compact Vertical Stats */}
-                    <div className="flex items-center gap-6 border-r border-slate-100 pr-6 h-9 shrink-0">
-                       <div className="flex flex-col items-start leading-none">
-                         <span className="text-slate-300 text-[8px] font-black uppercase mb-0.5 tracking-wider">GAME</span>
-                         <span className="text-slate-900 font-black text-lg">{totalGames}</span>
-                       </div>
-                       <div className="flex flex-col items-start leading-none">
-                         <span className="text-slate-300 text-[8px] font-black uppercase mb-0.5 tracking-wider">WINRATE</span>
-                         <span className="text-blue-600 font-black text-lg">{wr}%</span>
-                       </div>
-                    </div>
+                    {/* Col 3: Stat, Matches, Points */}
+                    <div className="flex items-center flex-1 min-w-0">
+                      {/* Compact Vertical Stats */}
+                      <div className="flex items-center gap-6 border-r border-slate-100 pr-6 mr-6 h-9 shrink-0">
+                         <div className="flex flex-col items-start leading-none min-w-[36px]">
+                           <span className="text-slate-300 text-[8px] font-black uppercase mb-0.5 tracking-wider">GAME</span>
+                           <span className="text-slate-900 font-black text-lg">{totalGames}</span>
+                         </div>
+                         <div className="flex flex-col items-start leading-none w-[50px]">
+                           <span className="text-slate-300 text-[8px] font-black uppercase mb-0.5 tracking-wider">WINRATE</span>
+                           <span className="text-blue-600 font-black text-lg">{wr}%</span>
+                         </div>
+                      </div>
 
-                    {/* Recent Result Mini Circles */}
-                    <div className="flex gap-1 items-center justify-start overflow-x-auto py-1 scrollbar-none min-w-0">
-                      {p.matches.length > 0 ? (
-                        [...p.matches].slice(-10).map((m) => (
-                          <div 
-                            key={m.id}
-                            className={`w-5 h-5 rounded-md flex items-center justify-center font-black font-mono text-[8px] border shadow-sm shrink-0 ${
-                              m.win 
-                                ? 'bg-blue-600 border-blue-500 text-white' 
-                                : 'bg-slate-100 border-slate-200 text-slate-400'
-                            }`}
-                          >
-                            {m.win ? 'W' : 'L'}
-                          </div>
-                        ))
-                      ) : (
-                        <span className="text-[10px] text-slate-300 font-bold px-2 py-1 bg-slate-50/50 rounded-lg whitespace-nowrap">전적 없음</span>
-                      )}
-                    </div>
+                      {/* Recent Result Mini Circles */}
+                      <div className="flex gap-1 items-center justify-start overflow-x-auto py-1 scrollbar-none flex-1 min-w-0 pr-6">
+                        {p.matches.length > 0 ? (
+                          [...p.matches].slice(-10).map((m) => (
+                            <div 
+                              key={m.id}
+                              className={`w-5 h-5 rounded-md flex items-center justify-center font-black font-mono text-[8px] border shadow-sm shrink-0 ${
+                                m.win 
+                                  ? 'bg-blue-600 border-blue-500 text-white' 
+                                  : 'bg-slate-100 border-slate-200 text-slate-400'
+                              }`}
+                            >
+                              {m.win ? 'W' : 'L'}
+                            </div>
+                          ))
+                        ) : (
+                          <span className="text-[10px] text-slate-300 font-bold px-2 py-1 bg-slate-50/50 rounded-lg whitespace-nowrap">전적 없음</span>
+                        )}
+                      </div>
 
-                    {/* Final Points */}
-                    <div className="text-right flex items-end gap-0.5 min-w-[80px] justify-end shrink-0">
-                      <strong className="text-4xl font-extrabold text-blue-600 font-sans tracking-tight leading-none">{p.totalPoints}</strong>
-                      <span className="text-lg text-blue-400 font-light mb-0.5 font-sans">P</span>
+                      {/* Final Points */}
+                      <div className="text-right flex items-end gap-0.5 w-[80px] justify-end shrink-0 ml-auto">
+                        <strong className="text-4xl font-extrabold text-blue-600 font-sans tracking-tight leading-none">{p.totalPoints}</strong>
+                        <span className="text-lg text-blue-400 font-light mb-0.5 font-sans">P</span>
+                      </div>
                     </div>
                   </div>
                 </motion.div>

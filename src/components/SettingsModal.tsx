@@ -260,13 +260,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <h3 className="text-[13px] font-bold text-blue-600 uppercase tracking-wider">참가자 목록</h3>
                   <div className="flex items-center gap-2">
                     <button 
-                      type="button"
-                      onClick={() => onBulkAddMatches(5)} 
-                      className="text-[11px] px-3.5 py-1.5 rounded-xl font-bold bg-amber-50 border border-amber-200 text-amber-600 hover:bg-amber-100 transition-colors cursor-pointer"
-                    >
-                      테스트 전적 생성
-                    </button>
-                    <button 
                       onClick={() => setIsEditMode(!isEditMode)} 
                       className={`text-[11px] px-3.5 py-1.5 rounded-xl font-bold border transition-all cursor-pointer ${
                         isEditMode 
@@ -334,9 +327,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     >
                       <div className="flex-1 flex gap-3 min-w-0 pr-4">
                         {isEditMode ? (
-                          <div className="flex-1 grid grid-cols-5 gap-2 py-1">
-                            <div className="col-span-2 space-y-1">
-                              <span className="text-[8px] font-bold text-slate-400 ml-1">이름</span>
+                          <div className="flex-1 grid grid-cols-12 gap-2 items-center">
+                            <div className="col-span-3">
                               <input 
                                 type="text" 
                                 value={p.name} 
@@ -344,11 +336,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                   const newList = participants.map(item => item.id === p.id ? { ...item, name: e.target.value } : item);
                                   onUpdateParticipants(newList);
                                 }}
+                                placeholder="이름"
                                 className="w-full text-xs bg-white border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:border-blue-500 font-bold"
                               />
                             </div>
-                            <div className="col-span-2 space-y-1">
-                              <span className="text-[8px] font-bold text-slate-400 ml-1">닉네임</span>
+                            <div className="col-span-6">
                               <input 
                                 type="text" 
                                 value={p.summonerName} 
@@ -356,11 +348,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                   const newList = participants.map(item => item.id === p.id ? { ...item, summonerName: e.target.value } : item);
                                   onUpdateParticipants(newList);
                                 }}
+                                placeholder="닉네임"
                                 className="w-full text-xs bg-white border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:border-blue-500 font-mono"
                               />
                             </div>
-                            <div className="col-span-1 space-y-1">
-                              <span className="text-[8px] font-bold text-slate-400 ml-1">태그</span>
+                            <div className="col-span-3">
                               <input 
                                 type="text" 
                                 value={p.tagLine} 
@@ -368,14 +360,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                   const newList = participants.map(item => item.id === p.id ? { ...item, tagLine: e.target.value.replace('#','') } : item);
                                   onUpdateParticipants(newList);
                                 }}
+                                placeholder="태그"
                                 className="w-full text-xs bg-white border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:border-blue-500 font-mono"
                               />
                             </div>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-3">
-                            <span className="text-sm font-extrabold text-slate-800 shrink-0">{p.name}</span>
-                            <span className="text-[11px] text-slate-400 font-mono font-bold truncate">{p.summonerName}#{p.tagLine}</span>
+                          <div className="flex-1 grid grid-cols-12 gap-2 items-center pl-1">
+                            <div className="col-span-3">
+                              <span className="text-sm font-extrabold text-slate-800 truncate block">{p.name}</span>
+                            </div>
+                            <div className="col-span-9">
+                              <span className="text-[11px] text-slate-400 font-mono font-bold truncate block">{p.summonerName}#{p.tagLine}</span>
+                            </div>
                           </div>
                         )}
                       </div>
