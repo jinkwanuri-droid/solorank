@@ -182,10 +182,17 @@ export const MainList: React.FC<MainListProps> = ({
                     {/* Col 2: Riot ID & Tier/LP */}
                     <div className="flex flex-col gap-1.5 w-[260px] shrink-0">
                       <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="text-[10px] text-slate-400 font-mono font-bold truncate px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200/50 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
+                        <span className="text-[10px] text-slate-400 font-mono font-bold truncate px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200/50 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors whitespace-pre">
                           {p.summonerName}#{p.tagLine}
                         </span>
-                        {p.syncWarning && (
+                        {p.syncStatus === 'no_api_key' ? (
+                          <span 
+                            className="shrink-0 flex items-center justify-center bg-slate-50 text-slate-400 border border-slate-100 rounded-md px-1.5 py-0.5 text-[9px] font-bold cursor-help transition-all hover:bg-slate-100 relative"
+                            title={p.syncWarning || ""}
+                          >
+                            Riot 미연동
+                          </span>
+                        ) : p.syncWarning ? (
                           <span 
                             className="shrink-0 flex items-center justify-center bg-rose-50 text-rose-500 border border-rose-100 rounded-md px-1.5 py-0.5 text-[9px] font-bold cursor-help transition-all hover:bg-rose-100 group-hover:z-20 relative"
                             title={p.syncWarning}
@@ -195,7 +202,7 @@ export const MainList: React.FC<MainListProps> = ({
                             </svg>
                             연동 오류
                           </span>
-                        )}
+                        ) : null}
                       </div>
                       <div className={`text-[10px] font-bold ${getTierColor(p.currentTier)} bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap w-fit`}>
                         <span className="text-slate-700">{formatTier(p.currentTier, p.currentDivision)}</span>
@@ -239,8 +246,9 @@ export const MainList: React.FC<MainListProps> = ({
 
                       {/* Recent Result Mini Circles */}
                       <div className="flex gap-1 items-center justify-start overflow-x-auto py-1 scrollbar-none flex-1 min-w-0 pr-6">
-                         <div className="flex gap-1">
+                         <div className="flex gap-1.5 px-0.5">
                           {(() => {
+                            // API returns sorted ascending already, so slice(-10) is the latest 10 in chronological order
                             const recent = [...p.matches].slice(-10);
                             const slots = [];
                             
@@ -249,24 +257,25 @@ export const MainList: React.FC<MainListProps> = ({
                               const m = recent[i];
                               slots.push(
                                 <div 
-                                  key={m.id || i}
-                                  className={`w-5 h-5 rounded-md flex items-center justify-center font-black font-mono text-[8px] border shrink-0 ${
+                                  key={m.id || `match-${i}`}
+                                  className={`w-4.5 h-4.5 rounded-md flex items-center justify-center font-black font-mono text-[9px] border shrink-0 transition-all ${
                                     m.win 
-                                      ? 'bg-blue-600 border-blue-500 text-white shadow-sm' 
-                                      : 'bg-slate-100 border-slate-200 text-slate-400 shadow-sm'
+                                      ? 'bg-blue-500 border-blue-400 text-white shadow-sm' 
+                                      : 'bg-rose-500 border-rose-400 text-white shadow-sm'
                                   }`}
+                                  title={m.win ? 'Win' : 'Loss'}
                                 >
                                   {m.win ? 'W' : 'L'}
                                 </div>
                               );
                             }
                             
-                            // 2. Pad up to 10 total slots if fewer than 10 matches
+                            // 2. Pad up to 10 total slots if fewer than 10 matches (no fill, just border)
                             for (let i = recent.length; i < 10; i++) {
                               slots.push(
                                 <div 
                                   key={`empty-${i}`}
-                                  className="w-5 h-5 rounded-md flex items-center justify-center font-black font-mono text-[8px] border shrink-0 bg-transparent border-slate-200 border-dashed text-slate-200"
+                                  className="w-4.5 h-4.5 rounded-md flex items-center justify-center font-black font-mono text-[9px] border shrink-0 bg-transparent border-slate-200 border-dashed text-slate-200"
                                 >
                                   -
                                 </div>

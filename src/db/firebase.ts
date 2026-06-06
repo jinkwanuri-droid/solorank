@@ -5,14 +5,29 @@ import firebaseConfig from '../../firebase-applet-config.json';
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 
+const stripUndefined = (obj: any): any => {
+  if (Array.isArray(obj)) {
+    return obj.map(stripUndefined);
+  } else if (obj !== null && typeof obj === 'object') {
+    return Object.entries(obj).reduce((acc: any, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = stripUndefined(value);
+      }
+      return acc;
+    }, {});
+  }
+  return obj;
+};
+
 export const saveContestData = async (rules: any, participants: any) => {
   try {
     const docRef = doc(db, 'config', 'contest');
-    await setDoc(docRef, {
+    const cleanData = stripUndefined({
       rules,
       participants,
       updatedAt: new Date().toISOString()
-    }, { merge: true });
+    });
+    await setDoc(docRef, cleanData, { merge: true });
     return true;
   } catch (error) {
     console.error('Failed to save contest data to Firestore:', error);

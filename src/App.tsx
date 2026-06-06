@@ -254,6 +254,26 @@ export default function App() {
     }
   };
 
+  const handleSaveAll = (updatedRules: ContestRules, updatedParticipants: Participant[]) => {
+    // 1. Update rules
+    setRules(updatedRules);
+    localStorage.setItem('lol_contest_rules', JSON.stringify(updatedRules));
+
+    // 2. Re-score every single participant based on newly assigned rules
+    const recalculated = updatedParticipants.map((p) => calculateParticipantScore(p, updatedRules));
+    setParticipants(recalculated);
+    localStorage.setItem('lol_contest_participants', JSON.stringify(recalculated));
+
+    // 3. Single sync to backend
+    syncToBackend(updatedRules, recalculated);
+
+    // 4. Update detail view if open
+    if (selectedParticipant) {
+      const freshSelected = recalculated.find(p => p.id === selectedParticipant.id);
+      if (freshSelected) setSelectedParticipant(freshSelected);
+    }
+  };
+
   const handleUpdateParticipants = (updatedList: Participant[]) => {
     setParticipants(updatedList);
     localStorage.setItem('lol_contest_participants', JSON.stringify(updatedList));
@@ -276,9 +296,20 @@ export default function App() {
     
     try {
       const updatedParticipants = [...currentParticipants];
+      const SYNC_COOLDOWN_MS = 90000;
       
       for (let i = 0; i < updatedParticipants.length; i++) {
         const p = updatedParticipants[i];
+        
+        // Skip sync if the participant was successfully synced within the last 90 seconds
+        if (p.lastSyncedAt && p.syncStatus === 'success') {
+          const elapsed = Date.now() - new Date(p.lastSyncedAt).getTime();
+          if (elapsed < SYNC_COOLDOWN_MS) {
+            console.log(`[Client Cooldown] Skipping API call for ${p.name}, updated recently (${Math.round(elapsed / 1000)}s ago)`);
+            continue;
+          }
+        }
+
         let retryCount = 0;
         const maxRetries = 2;
         let success = false;
@@ -295,6 +326,11 @@ export default function App() {
             });
             
             if (response.ok) {
+              const contentType = response.headers.get('content-type');
+              if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('서버 응답이 올바른 JSON 형식이 아닙니다.');
+              }
+
               const syncedData = await response.json();
               
               if (syncedData.syncStatus === 'failed') {
@@ -325,7 +361,16 @@ export default function App() {
               }
             }
             console.error(`Failed to sync ${p.name}:`, err);
-            updatedParticipants[i] = { ...p, syncStatus: 'failed', syncWarning: '연동 오류' };
+            
+            const errorMessage = err.message === 'Failed to fetch' || err.message?.includes('JSON') 
+              ? '서버 수신 거부 또는 연결 실패' 
+              : (err.message || '연동 오류');
+              
+            updatedParticipants[i] = { 
+              ...p, 
+              syncStatus: 'failed', 
+              syncWarning: errorMessage 
+            };
             success = true;
           }
         }
@@ -341,14 +386,9 @@ export default function App() {
         return freshSelected || null;
       });
       
-      if (!isSilent) {
-        alert('모든 참가자의 전적이 실시간으로 동기화되었습니다.');
-      }
+      // Removed intrusive alert for smoother UX
     } catch (e) {
       console.error('Sync process failed:', e);
-      if (!isSilent) {
-        alert('동기화 중 오류가 발생했습니다. API 키 및 네트워킹 상태를 확인해주세요.');
-      }
     } finally {
       setIsSyncing(false);
     }
@@ -431,6 +471,7 @@ export default function App() {
         onSaveRules={handleSaveRules}
         participants={participants}
         onUpdateParticipants={handleUpdateParticipants}
+        onSaveAll={handleSaveAll}
         onBulkAddMatches={handleBulkAddMatches}
       />
 

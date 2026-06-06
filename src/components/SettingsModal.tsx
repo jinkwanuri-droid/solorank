@@ -16,6 +16,7 @@ interface SettingsModalProps {
   onSaveRules: (rules: ContestRules) => void;
   participants: Participant[];
   onUpdateParticipants: (participants: Participant[]) => void;
+  onSaveAll: (rules: ContestRules, participants: Participant[]) => void;
   onBulkAddMatches: (times: number) => void;
 }
 
@@ -26,6 +27,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onSaveRules,
   participants,
   onUpdateParticipants,
+  onSaveAll,
   onBulkAddMatches
 }) => {
   const [activeTab, setActiveTab] = useState<'game' | 'participant'>('game');
@@ -48,11 +50,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [manualSummoner, setManualSummoner] = useState('');
   const [manualTag, setManualTag] = useState('');
 
+  const [localParticipants, setLocalParticipants] = useState<Participant[]>(participants);
+
   if (!isOpen) return null;
 
   const handleSaveConfig = (e: React.FormEvent) => {
     e.preventDefault();
-    onSaveRules({
+    
+    onSaveAll({
+      ...rules,
       periodStart,
       periodEnd,
       winPoints: Number(winPoints),
@@ -71,7 +77,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       },
       lossStreakThreshold: Number(lossStreakThreshold),
       lossStreakPenalty: Number(lossStreakPenalty),
-    });
+    }, localParticipants);
+    
     onClose();
   };
 
@@ -107,7 +114,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
       newParticipantsList.push({
         id: `p_${Math.random().toString(36).substring(2, 11)}`,
-        name,
+        name: name.trim(),
         summonerName,
         tagLine,
         startTier: 'DIAMOND',
@@ -127,7 +134,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     });
 
     if (newParticipantsList.length > 0) {
-      onUpdateParticipants([...participants, ...newParticipantsList]);
+      setLocalParticipants([...localParticipants, ...newParticipantsList]);
       setImportFeedback(`${newParticipantsList.length}명의 참가자가 추가되었습니다.`);
       setBulkText('');
     } else {
@@ -159,7 +166,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       totalPoints: 0
     };
     
-    onUpdateParticipants([...participants, newParticipant]);
+    setLocalParticipants([...localParticipants, newParticipant]);
     setManualName('');
     setManualSummoner('');
     setManualTag('');
@@ -167,7 +174,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const handleClearParticipants = () => {
     if (confirm('삭제하시겠습니까?')) {
-      onUpdateParticipants([]);
+      setLocalParticipants([]);
     }
   };
 
@@ -200,26 +207,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div>
                 <h3 className="text-[13px] font-bold text-blue-600 uppercase tracking-[0.2em] mb-6">내기 시간 설정</h3>
                 <div className="grid grid-cols-2 gap-8">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between px-1">
-                      <label className="text-[12px] font-bold text-slate-400 tracking-tight">시작 일시</label>
-                    </div>
-                    <CustomDateTimePicker 
-                      value={periodStart} 
-                      onChange={setPeriodStart} 
-                      label="시작 일시" 
-                    />
-                  </div>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between px-1">
-                      <label className="text-[12px] font-bold text-slate-400 tracking-tight">종료 일시</label>
-                    </div>
-                    <CustomDateTimePicker 
-                      value={periodEnd} 
-                      onChange={setPeriodEnd} 
-                      label="종료 일시" 
-                    />
-                  </div>
+                  <CustomDateTimePicker 
+                    value={periodStart} 
+                    onChange={setPeriodStart} 
+                    label="시작 일시" 
+                  />
+                  <CustomDateTimePicker 
+                    value={periodEnd} 
+                    onChange={setPeriodEnd} 
+                    label="종료 일시" 
+                  />
                 </div>
               </div>
 
@@ -297,7 +294,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                value={manualSummoner} 
                                onChange={e => setManualSummoner(e.target.value)} 
                                placeholder="LoL 닉네임" 
-                               className="w-full text-xs bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 outline-none focus:bg-white focus:border-blue-400 transition-all font-mono placeholder:text-slate-300 uppercase" 
+                               className="w-full text-xs bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 outline-none focus:bg-white focus:border-blue-400 transition-all font-mono placeholder:text-slate-300" 
                              />
                            </div>
                            <div className="col-span-3">
@@ -306,7 +303,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                value={manualTag} 
                                onChange={e => setManualTag(e.target.value)} 
                                placeholder="태그" 
-                               className="w-full text-xs bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 outline-none focus:bg-white focus:border-blue-400 transition-all font-mono placeholder:text-slate-300 uppercase" 
+                               className="w-full text-xs bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 outline-none focus:bg-white focus:border-blue-400 transition-all font-mono placeholder:text-slate-300" 
                              />
                            </div>
                         </div>
@@ -320,7 +317,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       </form>
                     </div>
                   )}
-                  {participants.map(p => (
+                  {localParticipants.map(p => (
                     <div 
                       key={p.id} 
                       className="flex justify-between items-center py-2.5 px-4 bg-slate-50 hover:bg-slate-100/50 rounded-2xl transition-all duration-150 group"
@@ -333,8 +330,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                 type="text" 
                                 value={p.name} 
                                 onChange={e => {
-                                  const newList = participants.map(item => item.id === p.id ? { ...item, name: e.target.value } : item);
-                                  onUpdateParticipants(newList);
+                                  const newList = localParticipants.map(item => item.id === p.id ? { ...item, name: e.target.value } : item);
+                                  setLocalParticipants(newList);
                                 }}
                                 placeholder="이름"
                                 className="w-full text-xs bg-white border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:border-blue-500 font-bold"
@@ -345,8 +342,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                 type="text" 
                                 value={p.summonerName} 
                                 onChange={e => {
-                                  const newList = participants.map(item => item.id === p.id ? { ...item, summonerName: e.target.value } : item);
-                                  onUpdateParticipants(newList);
+                                  const newList = localParticipants.map(item => item.id === p.id ? { ...item, summonerName: e.target.value } : item);
+                                  setLocalParticipants(newList);
                                 }}
                                 placeholder="닉네임"
                                 className="w-full text-xs bg-white border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:border-blue-500 font-mono"
@@ -357,8 +354,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                 type="text" 
                                 value={p.tagLine} 
                                 onChange={e => {
-                                  const newList = participants.map(item => item.id === p.id ? { ...item, tagLine: e.target.value.replace('#','') } : item);
-                                  onUpdateParticipants(newList);
+                                  const newList = localParticipants.map(item => item.id === p.id ? { ...item, tagLine: e.target.value.replace('#','') } : item);
+                                  setLocalParticipants(newList);
                                 }}
                                 placeholder="태그"
                                 className="w-full text-xs bg-white border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:border-blue-500 font-mono"
@@ -380,7 +377,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       <div className="flex items-center gap-2">
                         {isEditMode && (
                           <button 
-                            onClick={() => onUpdateParticipants(participants.filter(item => item.id !== p.id))} 
+                            onClick={() => setLocalParticipants(localParticipants.filter(item => item.id !== p.id))} 
                             className="text-[10px] text-rose-600 font-black bg-rose-50 hover:bg-rose-100 border border-rose-100 px-3 py-1.5 rounded-xl transition-all duration-200 shadow-sm"
                           >
                             삭제
@@ -389,12 +386,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       </div>
                     </div>
                   ))}
-                  {participants.length === 0 && (
+                  {localParticipants.length === 0 && (
                     <div className="text-center py-12 border border-dashed border-slate-200 rounded-2xl">
                       <span className="text-xs text-slate-400 font-medium">참가자가 존재하지 않습니다.<br />대량 등록으로 추가해 보세요!</span>
                     </div>
                   )}
                 </div>
+              </div>
+
+              <div className="pt-4 mt-auto">
+                <button 
+                  onClick={handleSaveConfig}
+                  className="w-full bg-slate-900 text-white rounded-2xl py-4 font-bold text-sm hover:bg-black transition-all shadow-xl shadow-slate-200 active:scale-[0.98]"
+                >
+                  설정 저장 및 업데이트
+                </button>
               </div>
 
               {isBulkOpen && (

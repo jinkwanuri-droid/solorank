@@ -54,6 +54,8 @@ export interface Participant {
   // Sync status metadata
   syncStatus?: string;
   syncWarning?: string | null;
+  puuid?: string;
+  lastSyncedAt?: string;
 }
 
 export interface ContestRules {

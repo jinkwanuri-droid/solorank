@@ -255,8 +255,14 @@ export function calculateParticipantScore(
   // Total point calc
   const totalPoints = lpDiffPoints + winStreakPoints + lossStreakPoints;
   
+  // Preserve existing error states if we aren't currently in a 'success' state override
+  const currentSyncStatus = participant.syncStatus;
+  const currentSyncWarning = participant.syncWarning;
+  
   return {
     ...participant,
+    syncStatus: isSynced ? 'success' : currentSyncStatus,
+    syncWarning: isSynced ? null : currentSyncWarning,
     startTier,
     startDivision,
     startLp,
