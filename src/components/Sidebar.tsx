@@ -219,8 +219,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </span>
                     <span className="text-[11px] font-bold text-slate-800 truncate w-11 shrink-0">{player.name}</span>
                     <span className={`text-[9px] ${getTierColor(player.currentTier)} bg-slate-50 border border-slate-100/50 px-1 py-0.5 rounded w-[78px] shrink-0 truncate group-hover:bg-white transition-colors`}>
-                      <span className="font-[600]">{formatTierShort(player.currentTier, player.currentDivision)}</span>
-                      <span className="font-[400] whitespace-pre opacity-70">  {player.currentLp}LP</span>
+                      <span className="font-bold">{formatTierShort(player.currentTier, player.currentDivision)}</span>
+                      <span className="font-medium whitespace-pre opacity-70">  {player.currentLp}LP</span>
                     </span>
                     <span className="text-[9px] text-slate-400 font-extrabold w-[48px] shrink-0 whitespace-nowrap text-center">
                       <span className="text-blue-500/70">{wins}W</span> {losses}L

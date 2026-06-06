@@ -286,50 +286,43 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
                 <div className="space-y-1.5 max-h-[380px] overflow-y-auto pr-1 scrollbar-none">
                   {isEditMode && (
-                    <div className="bg-blue-50/40 border border-blue-100 rounded-[32px] p-6 mb-8 shadow-sm">
-                      <h4 className="text-[11px] font-black text-blue-600 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" />
-                        참가자 수동 추가
-                      </h4>
-                      <form onSubmit={handleManualAdd} className="space-y-4">
-                        <div className="grid grid-cols-12 gap-3">
-                          <div className="col-span-4 space-y-1.5">
-                            <label className="text-[10px] font-bold text-slate-400 ml-1">참가자명</label>
-                            <input 
-                              type="text" 
-                              value={manualName} 
-                              onChange={e => setManualName(e.target.value)} 
-                              placeholder="예: 홍길동" 
-                              className="w-full text-xs bg-white border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all font-bold placeholder:text-slate-300" 
-                            />
-                          </div>
-                          <div className="col-span-5 space-y-1.5">
-                            <label className="text-[10px] font-bold text-slate-400 ml-1">게임 닉네임</label>
-                            <input 
-                              type="text" 
-                              value={manualSummoner} 
-                              onChange={e => setManualSummoner(e.target.value)} 
-                              placeholder="Summoner Name" 
-                              className="w-full text-xs bg-white border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all font-mono placeholder:text-slate-300" 
-                            />
-                          </div>
-                          <div className="col-span-3 space-y-1.5">
-                            <label className="text-[10px] font-bold text-slate-400 ml-1">태그</label>
-                            <input 
-                              type="text" 
-                              value={manualTag} 
-                              onChange={e => setManualTag(e.target.value)} 
-                              placeholder="KR1" 
-                              className="w-full text-xs bg-white border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all font-mono placeholder:text-slate-300" 
-                            />
-                          </div>
+                    <div className="bg-white border-2 border-dashed border-blue-100 rounded-2xl p-2.5 mb-6 group/add transition-all hover:border-blue-300 shadow-sm shadow-blue-100/50">
+                      <form onSubmit={handleManualAdd} className="flex gap-2 items-center">
+                        <div className="flex-1 grid grid-cols-12 gap-2">
+                           <div className="col-span-3">
+                             <input 
+                               type="text" 
+                               value={manualName} 
+                               onChange={e => setManualName(e.target.value)} 
+                               placeholder="참가자명" 
+                               className="w-full text-xs bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 outline-none focus:bg-white focus:border-blue-400 transition-all font-bold placeholder:text-slate-300" 
+                             />
+                           </div>
+                           <div className="col-span-6">
+                             <input 
+                               type="text" 
+                               value={manualSummoner} 
+                               onChange={e => setManualSummoner(e.target.value)} 
+                               placeholder="LoL 닉네임" 
+                               className="w-full text-xs bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 outline-none focus:bg-white focus:border-blue-400 transition-all font-mono placeholder:text-slate-300 uppercase" 
+                             />
+                           </div>
+                           <div className="col-span-3">
+                             <input 
+                               type="text" 
+                               value={manualTag} 
+                               onChange={e => setManualTag(e.target.value)} 
+                               placeholder="태그" 
+                               className="w-full text-xs bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 outline-none focus:bg-white focus:border-blue-400 transition-all font-mono placeholder:text-slate-300 uppercase" 
+                             />
+                           </div>
                         </div>
                         <button 
                           type="submit" 
                           disabled={!manualName || !manualSummoner || !manualTag}
-                          className="w-full bg-blue-600 text-white text-[11px] font-black py-3.5 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 disabled:opacity-50 disabled:shadow-none active:scale-[0.98]"
+                          className="shrink-0 bg-blue-600 text-white text-[10px] font-black px-4 h-9 rounded-xl hover:bg-blue-700 transition-all disabled:opacity-20 shadow-sm shadow-blue-200 active:scale-95"
                         >
-                          참가자 등록
+                          추가
                         </button>
                       </form>
                     </div>
