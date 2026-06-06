@@ -64,7 +64,7 @@ export default function App() {
     if (savedRules) {
       try {
         const parsed = JSON.parse(savedRules);
-        parsed.riotApiKey = import.meta.env.VITE_RIOT_API_KEY || '';
+        parsed.riotApiKey = parsed.riotApiKey || import.meta.env.VITE_RIOT_API_KEY || '';
         // Merge with DEFAULT_RULES to ensure new fields (like winStreakBonuses object) are present
         setRules({ ...DEFAULT_RULES, ...parsed });
       } catch (e) {
