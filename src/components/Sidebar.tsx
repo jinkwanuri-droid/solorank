@@ -71,7 +71,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="absolute top-20 left-0 w-36 h-36 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
 
       {/* Sidebar core content block */}
-      <div className="p-5 flex-1 space-y-4 flex flex-col justify-start overflow-hidden">
+      <div className="p-5 flex-1 space-y-4 flex flex-col justify-start overflow-visible relative z-40">
         
         {/* Header Branding with Shimmering Swords animated SVG */}
         <div className="flex justify-between items-start">
@@ -92,6 +92,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <SettingsIcon className="w-4.5 h-4.5" />
           </button>
         </div>
+
+        {/* 10px Spacing between branding and timer */}
+        <div className="h-[10px] shrink-0" />
 
         {/* Modern White Modular Timer (Based on user screenshot) */}
         <div className="flex flex-col gap-2">
@@ -186,7 +189,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* OBS Overlay Summary (Top 5) */}
-      <div className="p-5 border-t border-slate-150 bg-slate-50/10">
+      <div className="p-5 border-t border-slate-200 bg-slate-50/10">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <CrownRankingIcon className="w-3.5 h-3.5 text-amber-500 shadow-amber-200" />
@@ -218,7 +221,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <span className={`text-[9px] font-semibold ${getTierColor(player.currentTier)} bg-slate-50 border border-slate-100/50 px-1 py-0.5 rounded w-[72px] shrink-0 truncate text-center`}>
                       {formatTier(player.currentTier, player.currentDivision).split(' ')[0]} {player.currentLp}L
                     </span>
-                    <span className="text-[9px] text-slate-400 font-extrabold w-11 shrink-0">
+                    <span className="text-[9px] text-slate-400 font-extrabold w-[48px] shrink-0 whitespace-nowrap text-center">
                       <span className="text-blue-500/70">{wins}W</span> {losses}L
                     </span>
                     <div className="w-[32px] shrink-0">
