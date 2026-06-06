@@ -71,5 +71,5 @@ export interface ContestRules {
   };
   lossStreakThreshold: number; // e.g., 3 consecutive losses
   lossStreakPenalty: number; // e.g., 30 points penalty per extra loss on streak
-  riotApiKey: string; // Riot Dev API Key
+  riotApiKey?: string; // Riot Dev API Key
 }

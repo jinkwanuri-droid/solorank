@@ -38,7 +38,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [winStreakBonuses, setWinStreakBonuses] = useState(rules.winStreakBonuses || { 3: 10, 5: 20, 7: 30, 10: 50 });
   const [lossStreakThreshold, setLossStreakThreshold] = useState(rules.lossStreakThreshold);
   const [lossStreakPenalty, setLossStreakPenalty] = useState(rules.lossStreakPenalty);
-  const [riotApiKey, setRiotApiKey] = useState(rules.riotApiKey || '');
   
   const [bulkText, setBulkText] = useState('');
   const [importFeedback, setImportFeedback] = useState<string | null>(null);
@@ -68,7 +67,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       },
       lossStreakThreshold: Number(lossStreakThreshold),
       lossStreakPenalty: Number(lossStreakPenalty),
-      riotApiKey: riotApiKey
     });
     onClose();
   };
@@ -172,21 +170,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
               </div>
 
-              <div>
-                <h4 className="text-[13px] font-bold text-blue-600 uppercase tracking-wider mb-3">라이엇 API 키 설정 (Riot API Key)</h4>
-                <div className="space-y-2">
-                  <span className="block text-[11.5px] text-slate-400 font-medium leading-relaxed">
-                    전적 연동을 위해 라이엇 개발자 포털에서 발급받은 API 키를 입력해주세요. 입력된 키는 안전하게 브라우저에 저장됩니다. (Vercel 배포 환경에서도 직접 입력하여 정상 작동합니다.)
-                  </span>
-                  <input 
-                    type="text" 
-                    value={riotApiKey} 
-                    onChange={(e) => setRiotApiKey(e.target.value)} 
-                    placeholder="RGAPI-xxxx-xxxx-xxxx"
-                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-2xl py-3 px-4 text-xs font-mono text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all" 
-                  />
-                </div>
-              </div>
+
 
               <div>
                 <h4 className="text-[13px] font-bold text-blue-600 uppercase tracking-wider mb-4">포인트 규칙</h4>

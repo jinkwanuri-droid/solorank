@@ -31,7 +31,6 @@ const DEFAULT_RULES: ContestRules = {
   },
   lossStreakThreshold: 3,
   lossStreakPenalty: 15,
-  riotApiKey: import.meta.env.VITE_RIOT_API_KEY || ''
 };
 
 export default function App() {
@@ -64,7 +63,6 @@ export default function App() {
     if (savedRules) {
       try {
         const parsed = JSON.parse(savedRules);
-        parsed.riotApiKey = parsed.riotApiKey || import.meta.env.VITE_RIOT_API_KEY || '';
         // Merge with DEFAULT_RULES to ensure new fields (like winStreakBonuses object) are present
         setRules({ ...DEFAULT_RULES, ...parsed });
       } catch (e) {
