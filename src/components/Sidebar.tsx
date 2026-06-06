@@ -22,15 +22,17 @@ interface SidebarProps {
   participants: Participant[];
   onOpenSettings: () => void;
   onRunSimulation: () => void;
+  isSyncing: boolean;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   rules,
   participants,
   onOpenSettings,
-  onRunSimulation
+  onRunSimulation,
+  isSyncing
 }) => {
-  const [timeLeft, setTimeLeft] = useState('');
+  const [timerData, setTimerData] = useState({ d: '0', h: '00', m: '00', s: '00' });
   
   // High contrast first to fifth ranked players for OBS Overlay Capture
   const topFive = [...participants]
@@ -44,7 +46,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       const diff = end - now;
 
       if (diff <= 0) {
-        setTimeLeft('컨텐츠 종료됨');
+        setTimerData({ d: '0', h: '00', m: '00', s: '00' });
         return;
       }
 
@@ -53,12 +55,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-      const dStr = days > 0 ? `${days}일 ` : '';
-      const hStr = hours.toString().padStart(2, '0');
-      const mStr = minutes.toString().padStart(2, '0');
-      const sStr = seconds.toString().padStart(2, '0');
-
-      setTimeLeft(`${dStr}${hStr}:${mStr}:${sStr}`);
+      setTimerData({
+        d: days.toString(),
+        h: hours.toString().padStart(2, '0'),
+        m: minutes.toString().padStart(2, '0'),
+        s: seconds.toString().padStart(2, '0')
+      });
     };
 
     updateCountdown();
@@ -95,16 +97,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         </div>
 
-        {/* Live status timer, styled as a sleek banner */}
-        <div className="p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between bg-white relative overflow-hidden group">
-          <div className="absolute -right-4 -top-4 w-16 h-16 bg-blue-50/50 rounded-full blur-2xl group-hover:bg-blue-100 transition-colors" />
-          <div className="flex flex-col">
-            <span className="text-sm font-bold text-slate-500">남은 시간</span>
-            <span className="text-[10px] text-blue-400 font-bold tracking-tight mt-0.5">(게임 시작 시간 기준)</span>
+        {/* Modern White Modular Timer (Based on user screenshot) */}
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-2 px-1">
+            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">남은 시간</span>
+            <div className="h-px flex-1 bg-slate-100" />
+            <span className="text-[9px] text-blue-400 font-bold">(게임 시작 시간 기준)</span>
           </div>
-          <div className="flex items-center gap-3">
-             <div className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
-             <strong className="text-[30px] font-black text-slate-950 font-sans tracking-tight">{timeLeft}</strong>
+          
+          <div className="grid grid-cols-4 gap-2">
+            {[
+              { label: 'DAYS', value: timerData.d },
+              { label: 'HOURS', value: timerData.h },
+              { label: 'MINUTES', value: timerData.m },
+              { label: 'SECONDS', value: timerData.s },
+            ].map((unit, i) => (
+              <div key={unit.label} className="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-col items-center justify-center group hover:border-blue-200 transition-colors">
+                <span className="text-2xl font-black text-slate-900 font-mono tracking-tighter leading-none">{unit.value}</span>
+                <span className="text-[8px] font-black text-slate-300 mt-2 tracking-widest group-hover:text-blue-300 transition-colors">{unit.label}</span>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -136,6 +148,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           </div>
         </div>
+        
+        {/* Real-time Sync Trigger Button */}
+        <div className="px-1">
+          <button
+            onClick={onRunSimulation}
+            disabled={isSyncing}
+            className={`w-full group relative flex items-center justify-center gap-3 py-4 rounded-2xl font-black text-sm tracking-tight transition-all shadow-lg active:scale-[0.98] ${
+              isSyncing 
+                ? 'bg-slate-100 text-slate-400 cursor-not-allowed' 
+                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200 hover:shadow-blue-300'
+            }`}
+          >
+            <div className={`p-1.5 rounded-lg ${isSyncing ? 'bg-slate-200' : 'bg-blue-500 group-hover:bg-blue-400'} transition-colors`}>
+              <LivePulseIcon className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+            </div>
+            <span>{isSyncing ? '전적 동기화 중...' : '실시간 전적 동기화'}</span>
+            
+            {!isSyncing && (
+               <div className="absolute top-1.5 right-4 w-1.5 h-1.5 rounded-full bg-blue-300 animate-pulse" />
+            )}
+          </button>
+        </div>
 
       </div>
 
@@ -147,7 +181,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <span className="text-[11px] font-bold text-slate-700 tracking-tight">종합 랭킹 TOP 5</span>
           </div>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-2">
           {topFive.length > 0 ? (
             topFive.map((player, idx) => {
               const wins = player.matches.filter(m => m.win).length;
@@ -161,27 +195,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
               }
 
               return (
-                <div key={player.id} className="flex flex-col p-3 rounded-2xl bg-white border border-slate-200 shadow-sm hover:border-blue-300 transition-all">
-                  <div className="flex items-center justify-between mb-2">
+                <div key={player.id} className="flex flex-col p-2.5 rounded-xl bg-white border border-slate-100 shadow-sm hover:border-blue-200 transition-all group">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-black font-mono tracking-tighter ${
+                      <span className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-black font-mono ${
                         idx === 0 ? 'bg-amber-400 text-white' : idx === 1 ? 'bg-slate-300 text-white' : idx === 2 ? 'bg-orange-300 text-white' : 'bg-slate-50 text-slate-400'
                       }`}>
                         {idx + 1}
                       </span>
-                      <span className="text-[13px] font-black text-slate-800">{player.name}</span>
+                      <span className="text-[12px] font-bold text-slate-800">{player.name}</span>
                     </div>
-                    <strong className="text-[14px] font-black text-blue-600 font-mono tracking-tighter">{player.totalPoints}P</strong>
+                    <div className="flex items-end gap-0.5">
+                      <strong className="text-[16px] font-black text-blue-600 font-mono tracking-tighter leading-none">{player.totalPoints}</strong>
+                      <span className="text-[10px] font-black text-blue-400 mb-0.5">P</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3 px-1">
-                    <span className={`text-[10px] font-bold ${getTierColor(player.currentTier)} bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100`}>
+                  <div className="flex items-center gap-2 mt-1.5 px-0.5">
+                    <span className={`text-[9px] font-bold ${getTierColor(player.currentTier)} opacity-80`}>
                       {formatTier(player.currentTier, player.currentDivision).split(' ')[0]} {player.currentLp}LP
                     </span>
-                    <span className="text-[10px] text-slate-400 font-medium">
-                      <span className="text-blue-500">{wins}승</span> <span className="text-rose-400">{losses}패</span>
+                    <span className="w-1 h-1 rounded-full bg-slate-200" />
+                    <span className="text-[9px] text-slate-400 font-bold">
+                      <span className="text-blue-500/70">{wins}승</span> {losses}패
                     </span>
-                    <span className="text-[10px] text-emerald-500 font-black">
-                      ({streak}연승 중)
+                    <span className="text-[9px] text-emerald-500 font-black">
+                      ({streak}연승)
                     </span>
                   </div>
                 </div>

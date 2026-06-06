@@ -41,6 +41,7 @@ export default function App() {
   
   // Modal visibility states
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // 1. Load initial State from localStorage or seed
   useEffect(() => {
@@ -216,40 +217,47 @@ export default function App() {
     }
   };
 
-  // 2. Active simulator handler: runs 1 Solo Rank match for a random participant
-  const runLiveSimulation = () => {
-    if (participants.length === 0) return;
-
-    // Pick a random participant
-    const randomIndex = Math.floor(Math.random() * participants.length);
-    const target = participants[randomIndex];
+  // 2. Real-time data sync handler: fetches actual Riot API data through our proxy
+  const handleSyncAll = async () => {
+    if (participants.length === 0 || isSyncing) return;
     
-    // Choose date within constraint range
-    const gameTime = new Date().toISOString(); 
-    const isNewGameValid = new Date(gameTime).getTime() <= new Date(rules.periodEnd).getTime();
-    
-    if (!isNewGameValid) {
-      alert('컨텐츠 종료시간이 지나 시뮬레이션 경기를 기록할 수 없습니다.');
-      return;
-    }
-
-    const newMatch = generateRandomMatch(target, rules, gameTime);
-    
-    const updatedParticipants = participants.map((p, idx) => {
-      if (idx === randomIndex) {
-        const nextMatches = [...p.matches, newMatch];
-        const nextParticipant = { ...p, matches: nextMatches };
-        return calculateParticipantScore(nextParticipant, rules);
+    setIsSyncing(true);
+    try {
+      const updatedParticipants = [...participants];
+      
+      for (let i = 0; i < updatedParticipants.length; i++) {
+        const p = updatedParticipants[i];
+        try {
+          const response = await fetch('/api/lol/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ participant: p, rules })
+          });
+          
+          if (response.ok) {
+            const syncedData = await response.json();
+            // Calculate score based on new matches and tier info
+            updatedParticipants[i] = calculateParticipantScore(syncedData, rules);
+          }
+        } catch (err) {
+          console.error(`Failed to sync ${p.name}:`, err);
+        }
       }
-      return p;
-    });
-
-    setParticipants(updatedParticipants);
-    localStorage.setItem('lol_contest_participants', JSON.stringify(updatedParticipants));
-
-    // Active drawer real-time sync update
-    if (selectedParticipant && selectedParticipant.id === target.id) {
-      setSelectedParticipant(updatedParticipants[randomIndex]);
+      
+      setParticipants(updatedParticipants);
+      localStorage.setItem('lol_contest_participants', JSON.stringify(updatedParticipants));
+      
+      if (selectedParticipant) {
+        const freshSelected = updatedParticipants.find(p => p.id === selectedParticipant.id);
+        if (freshSelected) setSelectedParticipant(freshSelected);
+      }
+      
+      alert('모든 참가자의 전적이 실시간으로 동기화되었습니다.');
+    } catch (e) {
+      console.error('Sync process failed:', e);
+      alert('동기화 중 오류가 발생했습니다. API 키 및 네트워킹 상태를 확인해주세요.');
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -295,7 +303,8 @@ export default function App() {
         rules={rules}
         participants={participants}
         onOpenSettings={() => setIsSettingsOpen(true)}
-        onRunSimulation={runLiveSimulation}
+        onRunSimulation={handleSyncAll}
+        isSyncing={isSyncing}
       />
 
       {/* Main leaderboard scroll panel */}

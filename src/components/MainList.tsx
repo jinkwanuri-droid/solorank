@@ -68,8 +68,8 @@ export const MainList: React.FC<MainListProps> = ({
       <div className="absolute top-10 right-20 w-72 h-72 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-[100px] pointer-events-none" />
 
-      {/* Filter and sorting actions row */}
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-8 relative z-10">
+      {/* Header and Filter/Sorting Rows */}
+      <div className="space-y-8 relative z-10">
         <div className="space-y-4">
           <h2 className="text-4xl font-black text-slate-800 tracking-tighter flex items-center gap-3">
             참가자 종합 랭킹 보드
@@ -79,58 +79,46 @@ export const MainList: React.FC<MainListProps> = ({
           </p>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center w-full xl:w-auto">
-          {/* Search bar refined */}
-          <div className="relative group flex-1 md:flex-none">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white/40 p-2 rounded-[28px] border border-white/60 shadow-sm backdrop-blur-sm">
+          {/* Search bar - Left Aligned */}
+          <div className="relative group w-full md:w-80">
             <input
               type="text"
               placeholder="참가명 또는 소환사 검색..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full md:w-72 bg-white/70 backdrop-blur-md border border-slate-200/60 rounded-2xl py-3 pl-11 pr-4 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100/50 transition-all shadow-sm"
+              className="w-full bg-white/80 border border-slate-200/60 rounded-2xl py-3 pl-11 pr-4 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100/50 transition-all"
             />
             <svg className="absolute left-4 top-3.5 w-4.5 h-4.5 text-slate-400 group-focus-within:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
 
-          <div className="flex bg-slate-200/50 backdrop-blur-sm p-1 rounded-2xl border border-slate-200/50 shadow-inner">
-            <button
-              onClick={() => setSortBy('points')}
-              className={`rounded-xl px-4 py-2 text-[11px] font-bold tracking-tight transition-all cursor-pointer ${
-                sortBy === 'points' 
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
-                  : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              포인트 순
-            </button>
-            <button
-              onClick={() => setSortBy('lp')}
-              className={`rounded-xl px-4 py-2 text-[11px] font-bold tracking-tight transition-all cursor-pointer ${
-                sortBy === 'lp' 
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
-                  : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              현재 LP 순
-            </button>
-            <button
-              onClick={() => setSortBy('winrate')}
-              className={`rounded-xl px-4 py-2 text-[11px] font-bold tracking-tight transition-all cursor-pointer ${
-                sortBy === 'winrate' 
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
-                  : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              승률 순
-            </button>
+          {/* Filter buttons - Right Aligned */}
+          <div className="flex bg-slate-200/50 p-1.5 rounded-2xl border border-slate-200/50">
+            {[
+              { id: 'points', label: '포인트 순' },
+              { id: 'lp', label: '현재 LP 순' },
+              { id: 'winrate', label: '승률 순' }
+            ].map((btn) => (
+              <button
+                key={btn.id}
+                onClick={() => setSortBy(btn.id as any)}
+                className={`rounded-xl px-5 py-2 text-[12px] font-bold tracking-tight transition-all cursor-pointer whitespace-nowrap ${
+                  sortBy === btn.id 
+                    ? 'bg-blue-600 text-white shadow-md' 
+                    : 'text-slate-500 hover:text-slate-900 px-6'
+                }`}
+              >
+                {btn.label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
       {/* Main Ranking Scroll List */}
-      <div className="flex-1 relative z-10 space-y-6 pr-2">
+      <div className="flex-1 relative z-10 space-y-3 pr-2 pb-12">
         <AnimatePresence>
           {sortedParticipants.length > 0 ? (
             sortedParticipants.map((p, idx) => {
@@ -151,18 +139,17 @@ export const MainList: React.FC<MainListProps> = ({
                     ease: [0.16, 1, 0.3, 1] 
                   }}
                   onClick={() => onSelectParticipant(p)}
-                  className="bg-white/80 backdrop-blur-sm border border-slate-200/60 p-6 lg:p-8 rounded-[36px] flex flex-col lg:flex-row lg:items-center justify-between gap-10 cursor-pointer select-none relative group transition-all hover:bg-white hover:border-blue-300 hover:shadow-2xl hover:shadow-blue-200/30 hover:-translate-y-1"
+                  className="bg-white/80 backdrop-blur-sm border border-slate-200/60 py-3.5 px-6 lg:px-8 rounded-[28px] flex flex-col lg:flex-row lg:items-center justify-between gap-6 cursor-pointer select-none relative group transition-all hover:bg-white hover:border-blue-300 hover:shadow-xl hover:shadow-blue-200/20 hover:-translate-y-0.5"
                 >
                   {/* Left Identity Section */}
-                  <div className="flex items-center gap-8 flex-1 min-w-0">
-                    <div className="w-16 h-16 shrink-0 flex items-center justify-center">
+                  <div className="flex items-center gap-6 flex-1 min-w-0">
+                    <div className="w-12 h-12 shrink-0 flex items-center justify-center">
                       {idx === 0 ? (
                         <div className="relative">
-                          <div className="absolute inset-0 bg-amber-400/20 blur-xl rounded-full animate-pulse" />
-                          <CrownRankingIcon className="w-14 h-14 relative text-amber-500 drop-shadow-md" />
+                          <CrownRankingIcon className="w-10 h-10 relative text-amber-500 drop-shadow-sm" />
                         </div>
                       ) : (
-                        <span className={`text-3xl font-black font-mono tracking-tighter transition-colors ${
+                        <span className={`text-2xl font-black font-mono tracking-tighter transition-colors ${
                           idx === 1 ? 'text-slate-400' : idx === 2 ? 'text-orange-300' : 'text-slate-200 group-hover:text-slate-300'
                         }`}>
                           {idx + 1}
@@ -170,70 +157,72 @@ export const MainList: React.FC<MainListProps> = ({
                       )}
                     </div>
 
-                    <div className="min-w-0 flex flex-col gap-1">
-                      <div className="flex items-center gap-5">
-                        <strong className="text-3xl text-slate-900 font-black group-hover:text-blue-600 transition-colors tracking-tighter leading-tight">
+                    <div className="min-w-0 flex flex-col gap-0.5">
+                      <div className="flex items-center gap-4">
+                        <strong className="text-2xl text-slate-900 font-black group-hover:text-blue-600 transition-colors tracking-tighter leading-tight">
                           {p.name}
                         </strong>
-                        <span className="text-xs text-slate-400 font-mono font-bold truncate max-w-[150px] px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
+                        <span className="text-[10px] text-slate-400 font-mono font-bold truncate max-w-[120px] px-2 py-1 rounded-lg bg-slate-50 border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
                           {p.summonerName}#{p.tagLine}
+                        </span>
+                      </div>
+                      <div className={`text-[11px] font-bold ${getTierColor(p.currentTier)} bg-slate-50/50 w-fit px-2 py-0.5 rounded-md border border-slate-100/50`}>
+                        {formatTier(p.currentTier, p.currentDivision)} · {p.currentLp}LP
+                        <span className="text-emerald-500 font-black ml-2">
+                          {p.matches.filter(m => m.win).length}승 {p.matches.length - p.matches.filter(m => m.win).length}패
+                          <span className="ml-1 text-blue-400 opacity-60">
+                            ({(() => {
+                                let streak = 0;
+                                for (let i = p.matches.length - 1; i >= 0; i--) {
+                                  if (p.matches[i].win) streak++;
+                                  else break;
+                                }
+                                return streak;
+                              })()}연승)
+                          </span>
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Center/Right Status Section - Custom vertical stack from screenshot */}
-                  <div className="flex items-center gap-16 text-right">
-                    
-                    {/* Vertical Stats Column (from screenshot) */}
-                    <div className="flex flex-col items-center justify-center gap-1 text-[13px] font-bold">
-                       <div className="flex flex-col items-center">
-                         <span className="text-slate-400 text-[10px] mb-0.5">총</span>
-                         <span className="text-slate-900 font-black text-xl leading-none">{totalGames}</span>
-                         <span className="text-slate-400 text-[10px] mt-0.5">전</span>
+                  {/* Right Content Grouped */}
+                  <div className="flex items-center gap-12 text-right">
+                    {/* Compact Vertical Stats */}
+                    <div className="flex items-center gap-6 border-r border-slate-100 pr-12 h-10">
+                       <div className="flex flex-col items-center leading-none">
+                         <span className="text-slate-300 text-[8px] font-black uppercase mb-1">TOTAL</span>
+                         <span className="text-slate-900 font-black text-xl">{totalGames}</span>
                        </div>
-                       <div className="w-px h-4 bg-slate-100 my-1" />
-                       <div className="flex flex-col items-center">
-                         <span className="text-emerald-500 font-black text-lg leading-none">{wins}승</span>
-                         <span className="text-rose-400 font-black text-lg leading-none">{totalGames - wins}패</span>
-                       </div>
-                       <div className="w-px h-4 bg-slate-100 my-1" />
-                       <div className="flex flex-col items-center">
-                         <span className="text-blue-600 font-black text-sm">승률</span>
-                         <span className="text-blue-600 font-black text-lg">{wr}%</span>
+                       <div className="flex flex-col items-center leading-none">
+                         <span className="text-slate-300 text-[8px] font-black uppercase mb-1">WINRATE</span>
+                         <span className="text-blue-600 font-black text-xl">{wr}%</span>
                        </div>
                     </div>
 
-                    {/* Recent Match History */}
-                    <div className="hidden md:flex flex-col gap-4 items-center">
-                      <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest block">최근 리절트</span>
-                      <div className="flex gap-2.5">
-                        {p.matches.length > 0 ? (
-                          [...p.matches].slice(-6).map((m) => (
-                            <div 
-                              key={m.id}
-                              className={`w-8 h-8 rounded-xl flex items-center justify-center font-black font-mono text-[11px] border shadow-sm transition-all hover:scale-110 ${
-                                m.win 
-                                  ? 'bg-blue-600 border-blue-500 text-white shadow-blue-100' 
-                                  : 'bg-slate-50 border-slate-200 text-slate-300'
-                              }`}
-                            >
-                              {m.win ? 'W' : 'L'}
-                            </div>
-                          ))
-                        ) : (
-                          <span className="text-[11px] text-slate-300 font-medium py-1 px-3 bg-slate-100/50 rounded-lg">전적 없음</span>
-                        )}
-                      </div>
+                    {/* Recent Result Mini Circles */}
+                    <div className="hidden xl:flex gap-1.5 items-center">
+                      {p.matches.length > 0 ? (
+                        [...p.matches].slice(-5).map((m) => (
+                          <div 
+                            key={m.id}
+                            className={`w-6 h-6 rounded-lg flex items-center justify-center font-black font-mono text-[9px] border shadow-sm ${
+                              m.win 
+                                ? 'bg-blue-600 border-blue-500 text-white' 
+                                : 'bg-slate-100 border-slate-200 text-slate-400'
+                            }`}
+                          >
+                            {m.win ? 'W' : 'L'}
+                          </div>
+                        ))
+                      ) : (
+                        <span className="text-[10px] text-slate-300 font-bold px-2 py-1 bg-slate-50 rounded-lg">전적 없음</span>
+                      )}
                     </div>
 
-                    {/* Final Points */}
-                    <div className="text-right flex flex-col justify-center min-w-[140px]">
-                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-1">최종 스코어</span>
-                      <div className="flex items-end justify-end gap-1">
-                        <strong className="text-5xl font-black text-blue-600 font-mono tracking-tighter leading-none">{p.totalPoints}</strong>
-                        <span className="text-xl text-blue-400 font-black mb-1">P</span>
-                      </div>
+                    {/* Final Points - Emphasis */}
+                    <div className="text-right flex items-end gap-1 min-w-[100px] justify-end">
+                      <strong className="text-4xl font-black text-blue-600 font-mono tracking-tighter leading-none">{p.totalPoints}</strong>
+                      <span className="text-lg text-blue-400 font-black mb-0.5">P</span>
                     </div>
                   </div>
                 </motion.div>
