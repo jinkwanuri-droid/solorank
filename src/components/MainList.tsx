@@ -159,7 +159,7 @@ export const MainList: React.FC<MainListProps> = ({
                   )}
 
                   {/* Left Identity Section */}
-                  <div className="relative z-10 flex items-center gap-6 flex-none max-w-[40%] min-w-0">
+                  <div className="relative z-10 flex items-center gap-6 flex-none w-[320px] min-w-0">
                     <div className="w-12 h-12 shrink-0 flex items-center justify-center">
                       {idx === 0 ? (
                         <div className="flex items-center justify-center bg-amber-50 border border-amber-200/50 w-10 h-10 rounded-xl">
@@ -175,20 +175,20 @@ export const MainList: React.FC<MainListProps> = ({
                     </div>
 
                     <div className="min-w-0 flex flex-col gap-0.5">
-                      <div className="flex items-center gap-4">
-                        <strong className="text-2xl text-slate-900 font-black group-hover:text-blue-600 transition-colors tracking-tighter leading-tight">
+                      <div className="flex items-center gap-3">
+                        <strong className="text-2xl text-slate-900 font-black group-hover:text-blue-600 transition-colors tracking-tighter leading-tight truncate">
                           {p.name}
                         </strong>
-                        <span className="text-[10px] text-slate-400 font-mono font-bold truncate max-w-[120px] px-2 py-1 rounded-lg bg-slate-50 border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
+                        <span className="text-[9px] text-slate-400 font-mono font-bold truncate shrink-0 px-1.5 py-0.5 rounded-md bg-slate-50 border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
                           {p.summonerName}#{p.tagLine}
                         </span>
                       </div>
-                      <div className={`text-[11px] font-bold ${getTierColor(p.currentTier)} bg-slate-50 border border-slate-100 px-2.5 py-0.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap w-fit`}>
+                      <div className={`text-[10px] font-bold ${getTierColor(p.currentTier)} bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap w-fit`}>
                         <span className="text-slate-700">{formatTier(p.currentTier, p.currentDivision)}</span>
                         <span className="text-slate-300">·</span>
                         <span className="text-slate-900 font-extrabold">{p.currentLp}LP</span>
                         <span className="text-slate-300">·</span>
-                        <span className="text-emerald-500 font-extrabold">
+                        <span className="text-emerald-600 font-extrabold">
                           {p.matches.filter(m => m.win).length}승 {p.matches.length - p.matches.filter(m => m.win).length}패
                         </span>
                         {(() => {
@@ -197,11 +197,11 @@ export const MainList: React.FC<MainListProps> = ({
                             if (p.matches[i].win) streak++;
                             else break;
                           }
-                          return streak > 0 ? (
+                          return streak >= 2 ? (
                             <>
                               <span className="text-slate-300">·</span>
-                              <span className="text-blue-500 font-black animate-pulse">
-                                {streak}연승🔥
+                              <span className="text-blue-500 font-black animate-pulse text-[9px]">
+                                {streak}연승
                               </span>
                             </>
                           ) : null;
@@ -210,22 +210,22 @@ export const MainList: React.FC<MainListProps> = ({
                     </div>
                   </div>
 
-                  {/* Right Content Grouped */}
-                  <div className="relative z-10 flex items-center gap-8 flex-1 justify-start ml-2 lg:ml-4">
+                  {/* Right Content Grouped - Stat block moved left */}
+                  <div className="relative z-10 flex items-center gap-6 flex-1 justify-start ml-4">
                     {/* Compact Vertical Stats */}
-                    <div className="flex items-center gap-6 border-r border-slate-100 pr-8 h-10 shrink-0">
-                       <div className="flex flex-col items-center leading-none">
-                         <span className="text-slate-300 text-[8px] font-black uppercase mb-1">GAME</span>
-                         <span className="text-slate-900 font-black text-xl">{totalGames}</span>
+                    <div className="flex items-center gap-6 border-r border-slate-100 pr-6 h-9 shrink-0">
+                       <div className="flex flex-col items-start leading-none">
+                         <span className="text-slate-300 text-[8px] font-black uppercase mb-0.5 tracking-wider">GAME</span>
+                         <span className="text-slate-900 font-black text-lg">{totalGames}</span>
                        </div>
-                       <div className="flex flex-col items-center leading-none">
-                         <span className="text-slate-300 text-[8px] font-black uppercase mb-1">WINRATE</span>
-                         <span className="text-blue-600 font-black text-xl">{wr}%</span>
+                       <div className="flex flex-col items-start leading-none">
+                         <span className="text-slate-300 text-[8px] font-black uppercase mb-0.5 tracking-wider">WINRATE</span>
+                         <span className="text-blue-600 font-black text-lg">{wr}%</span>
                        </div>
                     </div>
 
-                    {/* Recent Result Mini Circles */}
-                    <div className="hidden xl:flex gap-1 items-center overflow-x-auto py-1 scrollbar-none">
+                    {/* Recent Result Mini Circles - Left aligned within this block */}
+                    <div className="flex gap-1 items-center justify-start overflow-x-auto py-1 scrollbar-none flex-1 min-w-0">
                       {p.matches.length > 0 ? (
                         [...p.matches].slice(-10).map((m) => (
                           <div 
@@ -240,7 +240,7 @@ export const MainList: React.FC<MainListProps> = ({
                           </div>
                         ))
                       ) : (
-                        <span className="text-[10px] text-slate-300 font-bold px-2 py-1 bg-slate-50 rounded-lg whitespace-nowrap">전적 없음</span>
+                        <span className="text-[10px] text-slate-300 font-bold px-2 py-1 bg-slate-50/50 rounded-lg whitespace-nowrap">전적 없음</span>
                       )}
                     </div>
                   </div>

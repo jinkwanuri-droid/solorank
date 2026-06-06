@@ -83,17 +83,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       let name = '';
       let summonerPair = '';
 
-      // Try splitting by TAB first to handle names with spaces correctly
-      if (trimmedLine.includes('\t')) {
-        const parts = trimmedLine.split('\t');
-        name = parts[0].trim();
-        summonerPair = parts[1]?.trim() || '';
-      } else {
-        // Fallback to space-based splitting
-        const parts = trimmedLine.split(/\s+/);
-        if (parts.length >= 2) {
-          name = parts[0].trim();
-          summonerPair = parts[1].trim();
+      // Split by spaces and handle names that might have spaces by assuming the last part is the summoner info
+      const parts = trimmedLine.split(/\s+/);
+      if (parts.length >= 2) {
+        // The last part should be the summoner#tag
+        const lastPart = parts[parts.length - 1];
+        if (lastPart.includes('#')) {
+          summonerPair = lastPart;
+          name = parts.slice(0, -1).join(' ');
+        } else {
+          // Fallback
+          name = parts[0];
+          summonerPair = parts[1];
         }
       }
 
@@ -231,6 +232,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-[13px] font-bold text-blue-600 uppercase tracking-wider">참가자 목록</h3>
                   <div className="flex items-center gap-2">
+			        <button 
+                      type="button"
+                      onClick={() => onBulkAddMatches(5)} 
+                      className="text-[11px] px-3.5 py-1.5 rounded-xl font-bold bg-amber-50 border border-amber-200 text-amber-600 hover:bg-amber-100 transition-colors cursor-pointer"
+                    >
+                      테스트 전적 생성
+                    </button>
                     <button 
                       onClick={() => setIsEditMode(!isEditMode)} 
                       className={`text-[11px] px-3.5 py-1.5 rounded-xl font-bold border transition-all cursor-pointer ${
@@ -243,7 +251,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     </button>
                     <button 
                       onClick={() => setIsBulkOpen(true)} 
-                      className="text-[11px] bg-slate-900 text-white px-3.5 py-1.5 rounded-xl font-bold hover:bg-black transition-colors"
+                      className="text-[11px] bg-slate-900 text-white px-3.5 py-1.5 rounded-xl font-bold hover:bg-black transition-colors border border-slate-900"
                     >
                       대량 등록
                     </button>
@@ -285,7 +293,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <textarea 
                       value={bulkText} 
                       onChange={(e) => setBulkText(e.target.value)} 
-                      placeholder={"참가자명 [탭] 소환사명#KR1\n홍길동\t길동#KR1\n임꺽정\t꺽정#KR2"} 
+                      placeholder={"참가자명 소환사명#KR1\n홍길동 길동#KR1\n임꺽정 꺽정#KR2"} 
                       rows={6} 
                       className="w-full bg-[#F8FAFC] border border-slate-200 rounded-lg p-3 text-xs text-slate-800 mb-4 font-mono focus:outline-none focus:border-blue-500 transition-all" 
                     />
