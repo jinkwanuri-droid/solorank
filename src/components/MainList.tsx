@@ -175,13 +175,26 @@ export const MainList: React.FC<MainListProps> = ({
                     </div>
 
                     <div className="min-w-0 flex flex-col gap-0.5">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 w-full">
                         <strong className="text-2xl text-slate-900 font-black group-hover:text-blue-600 transition-colors tracking-tighter leading-tight truncate">
                           {p.name}
                         </strong>
-                        <span className="text-[9px] text-slate-400 font-mono font-bold truncate shrink-0 px-1.5 py-0.5 rounded-md bg-slate-50 border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
-                          {p.summonerName}#{p.tagLine}
-                        </span>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="text-[9px] text-slate-400 font-mono font-bold truncate px-1.5 py-0.5 rounded-md bg-slate-50 border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors shrink-0">
+                            {p.summonerName}#{p.tagLine}
+                          </span>
+                          {p.syncWarning && (
+                            <span 
+                              className="shrink-0 flex items-center justify-center bg-rose-50 text-rose-500 border border-rose-100 rounded-md px-1.5 py-0.5 text-[9px] font-bold cursor-help transition-all hover:bg-rose-100 group-hover:z-20 relative"
+                              title={p.syncWarning}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3 mr-0.5">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                              </svg>
+                              연동 오류
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div className={`text-[10px] font-bold ${getTierColor(p.currentTier)} bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap w-fit`}>
                         <span className="text-slate-700">{formatTier(p.currentTier, p.currentDivision)}</span>

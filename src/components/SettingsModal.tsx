@@ -44,6 +44,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [isBulkOpen, setIsBulkOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
+  const [manualName, setManualName] = useState('');
+  const [manualSummoner, setManualSummoner] = useState('');
+  const [manualTag, setManualTag] = useState('');
+
   if (!isOpen) return null;
 
   const handleSaveConfig = (e: React.FormEvent) => {
@@ -129,6 +133,36 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     } else {
       setImportFeedback('추가할 수 있는 참가자 데이터가 없습니다. 형식을 확인해주세요.');
     }
+  };
+
+  const handleManualAdd = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!manualName || !manualSummoner || !manualTag) return;
+    
+    const newParticipant: Participant = {
+      id: `p_${Math.random().toString(36).substring(2, 11)}`,
+      name: manualName.trim(),
+      summonerName: manualSummoner.trim(),
+      tagLine: manualTag.trim().replace('#', ''),
+      startTier: 'DIAMOND',
+      startDivision: 1,
+      startLp: 0,
+      currentTier: 'DIAMOND',
+      currentDivision: 1,
+      currentLp: 0,
+      matches: [],
+      lpDiffPoints: 0,
+      winStreakPoints: 0,
+      lossStreakPoints: 0,
+      winStreakCount: 0,
+      lossStreakCount: 0,
+      totalPoints: 0
+    };
+    
+    onUpdateParticipants([...participants, newParticipant]);
+    setManualName('');
+    setManualSummoner('');
+    setManualTag('');
   };
 
   const handleClearParticipants = () => {
@@ -225,7 +259,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-[13px] font-bold text-blue-600 uppercase tracking-wider">참가자 목록</h3>
                   <div className="flex items-center gap-2">
-			        <button 
+                    <button 
                       type="button"
                       onClick={() => onBulkAddMatches(5)} 
                       className="text-[11px] px-3.5 py-1.5 rounded-xl font-bold bg-amber-50 border border-amber-200 text-amber-600 hover:bg-amber-100 transition-colors cursor-pointer"
@@ -251,6 +285,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                 </div>
                 <div className="space-y-1.5 max-h-[380px] overflow-y-auto pr-1 scrollbar-none">
+                  {isEditMode && (
+                    <form onSubmit={handleManualAdd} className="flex gap-2 items-center px-4 py-3 bg-blue-50/50 border border-blue-100 rounded-xl mb-3">
+                      <div className="flex-1 grid grid-cols-5 gap-2">
+                        <input type="text" value={manualName} onChange={e => setManualName(e.target.value)} placeholder="이름 (예: 홍길동)" className="col-span-2 text-xs bg-white border border-slate-200 rounded-md px-2.5 py-1.5 outline-none focus:border-blue-500 font-bold" />
+                        <input type="text" value={manualSummoner} onChange={e => setManualSummoner(e.target.value)} placeholder="소환사명" className="col-span-2 text-xs bg-white border border-slate-200 rounded-md px-2.5 py-1.5 outline-none focus:border-blue-500 font-mono" />
+                        <input type="text" value={manualTag} onChange={e => setManualTag(e.target.value)} placeholder="KR1" className="col-span-1 text-xs bg-white border border-slate-200 rounded-md px-2.5 py-1.5 outline-none focus:border-blue-500 font-mono" />
+                      </div>
+                      <button type="submit" className="shrink-0 text-[11px] font-black bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 transition">추가</button>
+                    </form>
+                  )}
                   {participants.map(p => (
                     <div 
                       key={p.id} 

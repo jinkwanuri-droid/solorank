@@ -6,20 +6,16 @@ export default async function handler(req: any, res: any) {
   const { participant, rules } = req.body;
   const apiKey = process.env.RIOT_API_KEY || process.env.VITE_RIOT_API_KEY || (rules && rules.riotApiKey);
 
-  if (!apiKey) {
-    return res.status(400).json({ error: "Riot API Key is required" });
+  if (!apiKey || apiKey.trim() === '' || apiKey.includes('YOUR_') || apiKey.includes('API_KEY')) {
+    return res.json({
+      ...participant,
+      syncStatus: 'no_api_key',
+      syncWarning: '서버 환경 변수(RIOT_API_KEY)가 등록되지 않아 전적 조회를 실행할 수 없습니다.'
+    });
   }
 
   try {
     const { summonerName, tagLine } = participant;
-    
-    if (!apiKey || apiKey.trim() === '' || apiKey.includes('YOUR_') || apiKey.includes('API_KEY')) {
-      return res.json({
-        ...participant,
-        syncStatus: 'no_api_key',
-        syncWarning: 'Riot API 키가 설정되지 않았습니다.'
-      });
-    }
 
     // 1. Get PUUID
     const accountRes = await fetch(
