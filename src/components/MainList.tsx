@@ -159,7 +159,7 @@ export const MainList: React.FC<MainListProps> = ({
                   )}
 
                   {/* Left Identity Section */}
-                  <div className="relative z-10 flex items-center gap-6 flex-1 min-w-0">
+                  <div className="relative z-10 flex items-center gap-6 flex-none max-w-[40%] min-w-0">
                     <div className="w-12 h-12 shrink-0 flex items-center justify-center">
                       {idx === 0 ? (
                         <div className="flex items-center justify-center bg-amber-50 border border-amber-200/50 w-10 h-10 rounded-xl">
@@ -211,11 +211,11 @@ export const MainList: React.FC<MainListProps> = ({
                   </div>
 
                   {/* Right Content Grouped */}
-                  <div className="relative z-10 flex items-center gap-12 text-right">
+                  <div className="relative z-10 flex items-center gap-8 flex-1 justify-start ml-2 lg:ml-4">
                     {/* Compact Vertical Stats */}
-                    <div className="flex items-center gap-6 border-r border-slate-100 pr-12 h-10">
+                    <div className="flex items-center gap-6 border-r border-slate-100 pr-8 h-10 shrink-0">
                        <div className="flex flex-col items-center leading-none">
-                         <span className="text-slate-300 text-[8px] font-black uppercase mb-1">TOTAL</span>
+                         <span className="text-slate-300 text-[8px] font-black uppercase mb-1">GAME</span>
                          <span className="text-slate-900 font-black text-xl">{totalGames}</span>
                        </div>
                        <div className="flex flex-col items-center leading-none">
@@ -225,12 +225,12 @@ export const MainList: React.FC<MainListProps> = ({
                     </div>
 
                     {/* Recent Result Mini Circles */}
-                    <div className="hidden xl:flex gap-1.5 items-center">
+                    <div className="hidden xl:flex gap-1 items-center overflow-x-auto py-1 scrollbar-none">
                       {p.matches.length > 0 ? (
-                        [...p.matches].slice(-5).map((m) => (
+                        [...p.matches].slice(-10).map((m) => (
                           <div 
                             key={m.id}
-                            className={`w-6 h-6 rounded-lg flex items-center justify-center font-black font-mono text-[9px] border shadow-sm ${
+                            className={`w-5 h-5 rounded-md flex items-center justify-center font-black font-mono text-[8px] border shadow-sm shrink-0 ${
                               m.win 
                                 ? 'bg-blue-600 border-blue-500 text-white' 
                                 : 'bg-slate-100 border-slate-200 text-slate-400'
@@ -240,15 +240,15 @@ export const MainList: React.FC<MainListProps> = ({
                           </div>
                         ))
                       ) : (
-                        <span className="text-[10px] text-slate-300 font-bold px-2 py-1 bg-slate-50 rounded-lg">전적 없음</span>
+                        <span className="text-[10px] text-slate-300 font-bold px-2 py-1 bg-slate-50 rounded-lg whitespace-nowrap">전적 없음</span>
                       )}
                     </div>
+                  </div>
 
-                    {/* Final Points - Emphasis */}
-                    <div className="text-right flex items-end gap-0.5 min-w-[100px] justify-end">
-                      <strong className="text-4xl font-extrabold text-blue-600 font-sans tracking-tight leading-none">{p.totalPoints}</strong>
-                      <span className="text-lg text-blue-400 font-light mb-0.5 font-sans">P</span>
-                    </div>
+                  {/* Final Points - Emphasis (Keep this on the far right) */}
+                  <div className="relative z-10 text-right flex items-end gap-0.5 min-w-[80px] justify-end">
+                    <strong className="text-4xl font-extrabold text-blue-600 font-sans tracking-tight leading-none">{p.totalPoints}</strong>
+                    <span className="text-lg text-blue-400 font-light mb-0.5 font-sans">P</span>
                   </div>
                 </motion.div>
               );
