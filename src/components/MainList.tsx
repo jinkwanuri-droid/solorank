@@ -166,21 +166,29 @@ export const MainList: React.FC<MainListProps> = ({
                           {p.summonerName}#{p.tagLine}
                         </span>
                       </div>
-                      <div className={`text-[11px] font-bold ${getTierColor(p.currentTier)} bg-slate-50/50 w-fit px-2 py-0.5 rounded-md border border-slate-100/50`}>
-                        {formatTier(p.currentTier, p.currentDivision)} · {p.currentLp}LP
-                        <span className="text-emerald-500 font-black ml-2">
+                      <div className={`text-[11px] font-bold ${getTierColor(p.currentTier)} bg-slate-50 border border-slate-100 px-2.5 py-0.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap w-fit`}>
+                        <span className="text-slate-700">{formatTier(p.currentTier, p.currentDivision)}</span>
+                        <span className="text-slate-300">·</span>
+                        <span className="text-slate-900 font-extrabold">{p.currentLp}LP</span>
+                        <span className="text-slate-300">·</span>
+                        <span className="text-emerald-500 font-extrabold">
                           {p.matches.filter(m => m.win).length}승 {p.matches.length - p.matches.filter(m => m.win).length}패
-                          <span className="ml-1 text-blue-400 opacity-60">
-                            ({(() => {
-                                let streak = 0;
-                                for (let i = p.matches.length - 1; i >= 0; i--) {
-                                  if (p.matches[i].win) streak++;
-                                  else break;
-                                }
-                                return streak;
-                              })()}연승)
-                          </span>
                         </span>
+                        {(() => {
+                          let streak = 0;
+                          for (let i = p.matches.length - 1; i >= 0; i--) {
+                            if (p.matches[i].win) streak++;
+                            else break;
+                          }
+                          return streak > 0 ? (
+                            <>
+                              <span className="text-slate-300">·</span>
+                              <span className="text-blue-500 font-black animate-pulse">
+                                {streak}연승🔥
+                              </span>
+                            </>
+                          ) : null;
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -220,9 +228,9 @@ export const MainList: React.FC<MainListProps> = ({
                     </div>
 
                     {/* Final Points - Emphasis */}
-                    <div className="text-right flex items-end gap-1 min-w-[100px] justify-end">
-                      <strong className="text-4xl font-black text-blue-600 font-mono tracking-tighter leading-none">{p.totalPoints}</strong>
-                      <span className="text-lg text-blue-400 font-black mb-0.5">P</span>
+                    <div className="text-right flex items-end gap-0.5 min-w-[100px] justify-end">
+                      <strong className="text-4xl font-extrabold text-blue-600 font-sans tracking-tight leading-none">{p.totalPoints}</strong>
+                      <span className="text-lg text-blue-400 font-light mb-0.5 font-sans">P</span>
                     </div>
                   </div>
                 </motion.div>

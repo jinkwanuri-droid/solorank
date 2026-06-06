@@ -207,7 +207,10 @@ export const DetailView: React.FC<DetailViewProps> = ({ participant, onClose, ru
           <div className="p-4 rounded-2xl bg-[#F8FAFC] border border-slate-200 flex items-center justify-between shadow-xs">
             <div>
               <span className="block text-xs text-slate-500">획득한 포인트</span>
-              <strong className="text-lg text-blue-600 font-bold">{participant.totalPoints}P</strong>
+              <div className="flex items-baseline gap-0.5">
+                <strong className="text-xl text-blue-600 font-extrabold font-sans leading-none">{participant.totalPoints}</strong>
+                <span className="text-xs text-blue-400 font-light font-sans">P</span>
+              </div>
             </div>
             <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center">
               {participant.totalPoints >= 0 ? <TrendUpIcon className="w-5 h-5 text-emerald-600" /> : <TrendDownIcon className="w-5 h-5 text-rose-600" />}

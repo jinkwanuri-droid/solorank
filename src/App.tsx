@@ -39,6 +39,19 @@ export default function App() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
   
+  // Use refs to keep newest states available for background timers
+  const participantsRef = React.useRef<Participant[]>([]);
+  const rulesRef = React.useRef<ContestRules>(DEFAULT_RULES);
+  const initialSyncDone = React.useRef(false);
+
+  useEffect(() => {
+    participantsRef.current = participants;
+  }, [participants]);
+
+  useEffect(() => {
+    rulesRef.current = rules;
+  }, [rules]);
+
   // Modal visibility states
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -218,12 +231,14 @@ export default function App() {
   };
 
   // 2. Real-time data sync handler: fetches actual Riot API data through our proxy
-  const handleSyncAll = async () => {
-    if (participants.length === 0 || isSyncing) return;
+  const handleSyncAll = async (isSilent = false) => {
+    const currentParticipants = participantsRef.current;
+    const currentRules = rulesRef.current;
+    if (currentParticipants.length === 0 || isSyncing) return;
     
     setIsSyncing(true);
     try {
-      const updatedParticipants = [...participants];
+      const updatedParticipants = [...currentParticipants];
       
       for (let i = 0; i < updatedParticipants.length; i++) {
         const p = updatedParticipants[i];
@@ -231,13 +246,13 @@ export default function App() {
           const response = await fetch('/api/lol/sync', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ participant: p, rules })
+            body: JSON.stringify({ participant: p, rules: currentRules })
           });
           
           if (response.ok) {
             const syncedData = await response.json();
             // Calculate score based on new matches and tier info
-            updatedParticipants[i] = calculateParticipantScore(syncedData, rules);
+            updatedParticipants[i] = calculateParticipantScore(syncedData, currentRules);
           }
         } catch (err) {
           console.error(`Failed to sync ${p.name}:`, err);
@@ -247,19 +262,41 @@ export default function App() {
       setParticipants(updatedParticipants);
       localStorage.setItem('lol_contest_participants', JSON.stringify(updatedParticipants));
       
-      if (selectedParticipant) {
-        const freshSelected = updatedParticipants.find(p => p.id === selectedParticipant.id);
-        if (freshSelected) setSelectedParticipant(freshSelected);
-      }
+      setSelectedParticipant(prevSelected => {
+        if (!prevSelected) return null;
+        const freshSelected = updatedParticipants.find(p => p.id === prevSelected.id);
+        return freshSelected || null;
+      });
       
-      alert('모든 참가자의 전적이 실시간으로 동기화되었습니다.');
+      if (!isSilent) {
+        alert('모든 참가자의 전적이 실시간으로 동기화되었습니다.');
+      }
     } catch (e) {
       console.error('Sync process failed:', e);
-      alert('동기화 중 오류가 발생했습니다. API 키 및 네트워킹 상태를 확인해주세요.');
+      if (!isSilent) {
+        alert('동기화 중 오류가 발생했습니다. API 키 및 네트워킹 상태를 확인해주세요.');
+      }
     } finally {
       setIsSyncing(false);
     }
   };
+
+  // Trigger silent sync automatically on page load once participants are populated
+  useEffect(() => {
+    if (participants.length > 0 && !initialSyncDone.current) {
+      initialSyncDone.current = true;
+      handleSyncAll(true);
+    }
+  }, [participants]);
+
+  // Set up 1-minute automatic sync interval
+  useEffect(() => {
+    const timer = setInterval(() => {
+      handleSyncAll(true);
+    }, 60000); // 1 minute (60,000ms)
+
+    return () => clearInterval(timer);
+  }, []);
 
   // 3. Bulk match simulation processor for all active players
   const handleBulkAddMatches = (count: number) => {
@@ -303,8 +340,6 @@ export default function App() {
         rules={rules}
         participants={participants}
         onOpenSettings={() => setIsSettingsOpen(true)}
-        onRunSimulation={handleSyncAll}
-        isSyncing={isSyncing}
       />
 
       {/* Main leaderboard scroll panel */}

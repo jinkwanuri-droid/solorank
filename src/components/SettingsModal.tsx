@@ -42,6 +42,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [bulkText, setBulkText] = useState('');
   const [importFeedback, setImportFeedback] = useState<string | null>(null);
   const [isBulkOpen, setIsBulkOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   if (!isOpen) return null;
 
@@ -201,22 +202,55 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
             </form>
           ) : (
-            <div className="space-y-8">
+            <div className="space-y-6">
               <div>
-                <div className="flex justify-between items-center mb-5">
+                <div className="flex justify-between items-center mb-4">
                   <h3 className="text-[13px] font-bold text-blue-600 uppercase tracking-wider">참가자 목록</h3>
-                  <button onClick={() => setIsBulkOpen(true)} className="text-[11px] bg-slate-900 text-white px-4 py-2 rounded-xl font-bold hover:bg-black transition-colors">대량 등록</button>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => setIsEditMode(!isEditMode)} 
+                      className={`text-[11px] px-3.5 py-1.5 rounded-xl font-bold border transition-all cursor-pointer ${
+                        isEditMode 
+                          ? 'bg-rose-50 border-rose-200 text-rose-600' 
+                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      {isEditMode ? '수정 완료' : '수정'}
+                    </button>
+                    <button 
+                      onClick={() => setIsBulkOpen(true)} 
+                      className="text-[11px] bg-slate-900 text-white px-3.5 py-1.5 rounded-xl font-bold hover:bg-black transition-colors"
+                    >
+                      대량 등록
+                    </button>
+                  </div>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1.5 max-h-[380px] overflow-y-auto pr-1 scrollbar-none">
                   {participants.map(p => (
-                    <div key={p.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
-                      <div className="flex flex-col">
-                        <span className="text-sm font-bold text-slate-800">{p.name}</span>
-                        <span className="text-[10px] text-slate-400 font-mono font-bold">{p.summonerName}#{p.tagLine}</span>
+                    <div 
+                      key={p.id} 
+                      className="flex justify-between items-center py-1.5 px-4 bg-slate-50 hover:bg-slate-100/50 rounded-xl border border-slate-150/60 shadow-[0_1px_2px_rgba(0,0,0,0.01)] transition-colors duration-150"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="text-sm font-extrabold text-slate-800 shrink-0">{p.name}</span>
+                        <span className="text-[11px] text-slate-400 font-mono font-bold truncate">{p.summonerName}#{p.tagLine}</span>
                       </div>
-                      <button onClick={() => onUpdateParticipants(participants.filter(item => item.id !== p.id))} className="text-xs text-rose-500 font-bold hover:bg-rose-50 px-2 py-1 rounded-lg transition-colors">삭제</button>
+                      
+                      {isEditMode && (
+                        <button 
+                          onClick={() => onUpdateParticipants(participants.filter(item => item.id !== p.id))} 
+                          className="text-[10px] text-rose-600 font-black bg-rose-50 hover:bg-rose-100 border border-rose-100 px-2 py-0.5 rounded-md transition-all duration-200"
+                        >
+                          삭제
+                        </button>
+                      )}
                     </div>
                   ))}
+                  {participants.length === 0 && (
+                    <div className="text-center py-12 border border-dashed border-slate-200 rounded-2xl">
+                      <span className="text-xs text-slate-400 font-medium">참가자가 존재하지 않습니다.<br />대량 등록으로 추가해 보세요!</span>
+                    </div>
+                  )}
                 </div>
               </div>
 

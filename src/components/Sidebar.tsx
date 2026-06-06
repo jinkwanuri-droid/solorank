@@ -21,16 +21,12 @@ interface SidebarProps {
   rules: ContestRules;
   participants: Participant[];
   onOpenSettings: () => void;
-  onRunSimulation: () => void;
-  isSyncing: boolean;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   rules,
   participants,
-  onOpenSettings,
-  onRunSimulation,
-  isSyncing
+  onOpenSettings
 }) => {
   const [timerData, setTimerData] = useState({ d: '0', h: '00', m: '00', s: '00' });
   
@@ -69,23 +65,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
   }, [rules.periodEnd]);
 
   return (
-    <aside id="sidebar-container" className="w-[400px] h-screen shrink-0 border-r border-slate-200 flex flex-col justify-between bg-gradient-to-b from-white via-white to-slate-50 relative z-10 select-none">
+    <aside id="sidebar-container" className="w-[400px] h-screen shrink-0 border-r border-slate-200 flex flex-col justify-between bg-gradient-to-b from-white via-white to-slate-50 relative z-30 select-none overflow-hidden">
       
       {/* Decorative side mesh glow */}
       <div className="absolute top-20 left-0 w-36 h-36 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
 
       {/* Sidebar core content block */}
-      <div className="p-6 overflow-y-auto flex-1 space-y-6">
+      <div className="p-5 flex-1 space-y-4 flex flex-col justify-start overflow-hidden">
         
         {/* Header Branding with Shimmering Swords animated SVG */}
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-blue-50 border border-blue-100 rounded-2xl shadow-sm">
-              <SwordsIcon className="w-6 h-6 text-blue-600 rotate-12" />
+            <div className="p-2.5 bg-blue-50 border border-blue-100/80 rounded-2xl shadow-sm">
+              <SwordsIcon className="w-5.5 h-5.5 text-blue-600 rotate-12" />
             </div>
             <div>
-              <h1 className="text-xl font-black text-slate-900 tracking-tighter font-sans leading-tight">솔랭 달리기 리그</h1>
-              <p className="text-[10px] text-blue-500 font-bold tracking-[0.2em] uppercase mt-0.5">LEAGUE SCOREBOARD ENGINE</p>
+              <h1 className="text-lg font-black text-slate-900 tracking-tighter font-sans leading-tight">솔랭 달리기 리그</h1>
+              <p className="text-[9px] text-blue-500 font-bold tracking-[0.2em] uppercase mt-0.5">LEAGUE SCOREBOARD ENGINE</p>
             </div>
           </div>
           
@@ -93,95 +89,111 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={onOpenSettings}
             className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-slate-700 hover:text-slate-950 transition-all cursor-pointer shadow-sm"
           >
-            <SettingsIcon className="w-5 h-5" />
+            <SettingsIcon className="w-4.5 h-4.5" />
           </button>
         </div>
 
         {/* Modern White Modular Timer (Based on user screenshot) */}
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-2 px-1">
-            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">남은 시간</span>
-            <div className="h-px flex-1 bg-slate-100" />
-            <span className="text-[9px] text-blue-400 font-bold">(게임 시작 시간 기준)</span>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between px-0.5">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">남은 시간</span>
+            <span className="text-[9px] text-blue-500 font-bold bg-blue-50/50 px-2 py-0.5 rounded-md border border-blue-100/30">(게임 시작 시간 기준)</span>
           </div>
           
           <div className="grid grid-cols-4 gap-2">
             {[
-              { label: 'DAYS', value: timerData.d },
-              { label: 'HOURS', value: timerData.h },
-              { label: 'MINUTES', value: timerData.m },
-              { label: 'SECONDS', value: timerData.s },
-            ].map((unit, i) => (
-              <div key={unit.label} className="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-col items-center justify-center group hover:border-blue-200 transition-colors">
-                <span className="text-2xl font-black text-slate-900 font-mono tracking-tighter leading-none">{unit.value}</span>
-                <span className="text-[8px] font-black text-slate-300 mt-2 tracking-widest group-hover:text-blue-300 transition-colors">{unit.label}</span>
+              { label: 'days', value: timerData.d },
+              { label: 'hours', value: timerData.h },
+              { label: 'minutes', value: timerData.m },
+              { label: 'seconds', value: timerData.s },
+            ].map((unit) => (
+              <div 
+                key={unit.label} 
+                className="bg-gradient-to-b from-white to-slate-50/50 border border-slate-200/85 rounded-xl py-2 px-1 flex flex-col items-center justify-center shadow-[inset_0_1.5px_0_rgba(255,255,255,0.9),0_2px_4px_rgba(15,23,42,0.03)] hover:border-blue-200 hover:shadow-md transition-all duration-300"
+              >
+                <span className="text-[24px] font-black text-slate-800 font-sans tracking-tight leading-none">{unit.value}</span>
+                <span className="text-[8px] font-light text-slate-400 mt-1.5 tracking-wider font-sans leading-none">{unit.label}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Settings Info Summary Detail List */}
-        <div className="space-y-3">
-          <h2 className="text-[10px] font-bold text-blue-600 tracking-wider uppercase">현재 설정된 배점 가중치</h2>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 rounded-xl bg-slate-50/50 border border-slate-200 text-left">
-              <span className="text-[10px] text-slate-500 block">LP당 증감 가점</span>
-              <strong className="text-sm text-slate-800 font-bold">비활성화됨 (0P)</strong>
+        {/* Game Rules Hover Button & Tooltip Popover */}
+        <div className="relative group/rules px-0.5">
+          <button className="w-full relative flex items-center justify-between py-2.5 px-3.5 bg-white border border-slate-200 rounded-xl font-bold text-[11px] text-slate-700 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50/25 transition-all shadow-[0_1.5px_3px_rgba(0,0,0,0.015)] cursor-pointer group active:scale-[0.99]">
+            <div className="flex items-center gap-2">
+              <span className="flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+              </span>
+              <span>게임규칙</span>
             </div>
-            <div className="p-3 rounded-xl bg-slate-50/50 border border-slate-200 text-left">
-              <span className="text-[10px] text-slate-500 block">경기당 기본 승/패</span>
-              <strong className="text-sm text-slate-800 font-bold">+{rules.winPoints}P / {rules.lossPoints}P</strong>
+            <svg className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+
+          {/* Hover Popover */}
+          <div className="absolute left-0 top-full mt-2 w-full bg-white border border-slate-200 rounded-2xl shadow-[0_20px_40px_rgba(15,23,42,0.15)] p-4 text-xs space-y-3 opacity-0 pointer-events-none group-hover/rules:opacity-100 group-hover/rules:pointer-events-auto transition-all duration-300 transform translate-y-1 group-hover/rules:translate-y-0 z-50">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <strong className="text-slate-800 text-[12px] font-black">🏆 현재 설정된 점수 산출 배점</strong>
+              <span className="text-[9px] text-blue-500 font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100/40">Riot API 연동</span>
             </div>
-            <div className="p-3 rounded-xl bg-slate-50/50 border border-slate-200 text-left flex items-center gap-2">
-              <FlameStreakIcon className="w-4 h-4 text-orange-500 shrink-0" />
-              <div>
-                <span className="text-[10px] text-slate-500 block">3연승 보너스</span>
-                <strong className="text-xs text-emerald-600 font-bold">+{rules.winStreakBonuses?.[3] || 0}P 추가</strong>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between items-center bg-slate-50/50 px-3 py-2 rounded-xl border border-slate-100">
+                <span className="text-slate-500 font-medium">경기당 기본 승리</span>
+                <div className="flex items-baseline gap-0.5">
+                  <strong className="text-blue-600 font-black text-xs">+{rules.winPoints}</strong>
+                  <span className="text-[10px] font-light text-blue-400">P</span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center bg-slate-50/50 px-3 py-2 rounded-xl border border-slate-100">
+                <span className="text-slate-500 font-medium">경기당 기본 패배</span>
+                <div className="flex items-baseline gap-0.5">
+                  <strong className="text-rose-500 font-black text-xs">{rules.lossPoints}</strong>
+                  <span className="text-[10px] font-light text-rose-400">P</span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center bg-slate-50/50 px-3 py-2 rounded-xl border border-slate-100">
+                <span className="text-slate-500 font-medium">LP당 증감 가점</span>
+                <span className="text-slate-400 font-bold text-[10px]">비활성화됨 (0P)</span>
+              </div>
+              <div className="flex justify-between items-center bg-slate-50/50 px-3 py-2 rounded-xl border border-slate-100">
+                <span className="text-slate-500 font-medium">3연승 보너스</span>
+                <div className="flex items-baseline gap-0.5">
+                  <strong className="text-emerald-500 font-black text-xs">+{rules.winStreakBonuses?.[3] || 0}</strong>
+                  <span className="text-[10px] font-light text-emerald-400">P</span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center bg-slate-50/50 px-3 py-2 rounded-xl border border-slate-100">
+                <span className="text-slate-500 font-medium">{rules.lossStreakThreshold}연패 패널티</span>
+                <div className="flex items-baseline gap-0.5">
+                  <strong className="text-slate-800 font-black text-xs">{rules.lossStreakPenalty}</strong>
+                  <span className="text-[10px] font-light text-slate-500">P</span>
+                </div>
               </div>
             </div>
-            <div className="p-3 rounded-xl bg-slate-50/50 border border-slate-200 text-left flex items-center gap-2">
-              <IceStreakIcon className="w-4 h-4 text-cyan-600 shrink-0" />
-              <div>
-                <span className="text-[10px] text-slate-500 block">{rules.lossStreakThreshold}연패 디스카운트</span>
-                <strong className="text-xs text-rose-600 font-bold">-{rules.lossStreakPenalty}P 강등</strong>
-              </div>
+            
+            <div className="bg-blue-50/30 rounded-xl p-2.5 border border-blue-100/30">
+              <p className="text-[10px] text-blue-600 font-semibold leading-relaxed">
+                * 전적 및 티어 갱신 시 실시간으로 계산되어 반영됩니다. (자동 동기화 1분 간격 자동 수행)
+              </p>
             </div>
           </div>
-        </div>
-        
-        {/* Real-time Sync Trigger Button */}
-        <div className="px-1">
-          <button
-            onClick={onRunSimulation}
-            disabled={isSyncing}
-            className={`w-full group relative flex items-center justify-center gap-3 py-4 rounded-2xl font-black text-sm tracking-tight transition-all shadow-lg active:scale-[0.98] ${
-              isSyncing 
-                ? 'bg-slate-100 text-slate-400 cursor-not-allowed' 
-                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200 hover:shadow-blue-300'
-            }`}
-          >
-            <div className={`p-1.5 rounded-lg ${isSyncing ? 'bg-slate-200' : 'bg-blue-500 group-hover:bg-blue-400'} transition-colors`}>
-              <LivePulseIcon className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-            </div>
-            <span>{isSyncing ? '전적 동기화 중...' : '실시간 전적 동기화'}</span>
-            
-            {!isSyncing && (
-               <div className="absolute top-1.5 right-4 w-1.5 h-1.5 rounded-full bg-blue-300 animate-pulse" />
-            )}
-          </button>
         </div>
 
       </div>
 
       {/* OBS Overlay Summary (Top 5) */}
-      <div className="p-6 border-t border-slate-200 bg-slate-50/30">
-        <div className="flex items-center justify-between mb-4">
+      <div className="p-5 border-t border-slate-150 bg-slate-50/10">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <CrownRankingIcon className="w-4 h-4 text-amber-500 shadow-amber-200" />
+            <CrownRankingIcon className="w-3.5 h-3.5 text-amber-500 shadow-amber-200" />
             <span className="text-[11px] font-bold text-slate-700 tracking-tight">종합 랭킹 TOP 5</span>
           </div>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-1">
           {topFive.length > 0 ? (
             topFive.map((player, idx) => {
               const wins = player.matches.filter(m => m.win).length;
@@ -195,32 +207,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
               }
 
               return (
-                <div key={player.id} className="flex flex-col p-2.5 rounded-xl bg-white border border-slate-100 shadow-sm hover:border-blue-200 transition-all group">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-black font-mono ${
-                        idx === 0 ? 'bg-amber-400 text-white' : idx === 1 ? 'bg-slate-300 text-white' : idx === 2 ? 'bg-orange-300 text-white' : 'bg-slate-50 text-slate-400'
-                      }`}>
-                        {idx + 1}
-                      </span>
-                      <span className="text-[12px] font-bold text-slate-800">{player.name}</span>
-                    </div>
-                    <div className="flex items-end gap-0.5">
-                      <strong className="text-[16px] font-black text-blue-600 font-mono tracking-tighter leading-none">{player.totalPoints}</strong>
-                      <span className="text-[10px] font-black text-blue-400 mb-0.5">P</span>
+                <div key={player.id} className="flex items-center justify-between p-2 rounded-xl bg-white border border-slate-100 shadow-[0_1px_2px_rgba(0,0,0,0.01)] hover:border-blue-200 transition-all group h-8.5">
+                  <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                    <span className={`w-4 h-4 rounded-md flex items-center justify-center text-[9px] font-black font-mono shrink-0 ${
+                      idx === 0 ? 'bg-amber-400 text-white' : idx === 1 ? 'bg-slate-300 text-white' : idx === 2 ? 'bg-orange-300 text-white' : 'bg-slate-50 text-slate-400 border border-slate-100'
+                    }`}>
+                      {idx + 1}
+                    </span>
+                    <span className="text-[11px] font-bold text-slate-800 truncate w-11 shrink-0">{player.name}</span>
+                    <span className={`text-[9px] font-semibold ${getTierColor(player.currentTier)} bg-slate-50 border border-slate-100/50 px-1 py-0.5 rounded w-[72px] shrink-0 truncate text-center`}>
+                      {formatTier(player.currentTier, player.currentDivision).split(' ')[0]} {player.currentLp}L
+                    </span>
+                    <span className="text-[9px] text-slate-400 font-extrabold w-11 shrink-0">
+                      <span className="text-blue-500/70">{wins}W</span> {losses}L
+                    </span>
+                    <div className="w-[32px] shrink-0">
+                      {streak > 0 && (
+                        <span className="text-[8px] text-emerald-500 font-extrabold bg-emerald-50 border border-emerald-100/30 px-1 rounded block text-center truncate leading-none py-0.5">
+                          {streak}🔥
+                        </span>
+                      )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 mt-1.5 px-0.5">
-                    <span className={`text-[9px] font-bold ${getTierColor(player.currentTier)} opacity-80`}>
-                      {formatTier(player.currentTier, player.currentDivision).split(' ')[0]} {player.currentLp}LP
-                    </span>
-                    <span className="w-1 h-1 rounded-full bg-slate-200" />
-                    <span className="text-[9px] text-slate-400 font-bold">
-                      <span className="text-blue-500/70">{wins}승</span> {losses}패
-                    </span>
-                    <span className="text-[9px] text-emerald-500 font-black">
-                      ({streak}연승)
-                    </span>
+                  <div className="flex items-baseline shrink-0 gap-0.5 pl-1 w-10 justify-end">
+                    <strong className="text-[13px] font-black text-blue-600 font-sans tracking-tight leading-none">{player.totalPoints}</strong>
+                    <span className="text-[8px] font-light text-blue-400">P</span>
                   </div>
                 </div>
               );
