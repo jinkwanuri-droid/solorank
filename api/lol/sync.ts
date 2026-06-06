@@ -1,12 +1,8 @@
-import express from "express";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
+export default async function handler(req: any, res: any) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
-const app = express();
-app.use(express.json());
-
-// Riot API Proxy handler (Copied from server.ts)
-app.post("/api/lol/sync", async (req, res) => {
   const { participant, rules } = req.body;
   const apiKey = process.env.RIOT_API_KEY || process.env.VITE_RIOT_API_KEY || (rules && rules.riotApiKey);
 
@@ -31,7 +27,6 @@ app.post("/api/lol/sync", async (req, res) => {
     );
     
     if (!accountRes.ok) {
-       // Return handled error
        return res.json({ ...participant, syncStatus: 'failed', syncWarning: `계정을 찾을 수 없습니다: ${accountRes.status}` });
     }
     
@@ -106,6 +101,4 @@ app.post("/api/lol/sync", async (req, res) => {
   } catch (error: any) {
     res.json({ ...participant, syncStatus: 'failed', syncWarning: error.message });
   }
-});
-
-export default app;
+}
